@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chat</title>
+  <link id="google-fonts" rel="stylesheet" href="">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Floating toggle button -->
+  <button id="chat-toggle" aria-label="Open chat">
+    <span id="toggle-icon-open">
+      <svg viewBox="0 0 24 24" fill="none"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>
+    </span>
+    <span id="toggle-icon-close">
+      <svg viewBox="0 0 24 24" fill="none"><path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>
+    </span>
+  </button>
+
+  <!-- Chat panel -->
+  <div id="chat-panel" aria-hidden="true">
+
+    <div id="chat-header">
+      <div id="chat-header-left">
+        <div id="chat-avatar"></div>
+        <div id="chat-header-info">
+          <span id="chat-bot-name">Assistant</span>
+          <span id="chat-status"><span class="status-dot"></span>Online</span>
+        </div>
+      </div>
+    </div>
+
+    <div id="chat-messages" role="log" aria-live="polite"></div>
+
+    <div id="typing-indicator" hidden>
+      <div class="message bot">
+        <div class="message-avatar" id="typing-avatar"></div>
+        <div class="typing-dots"><span></span><span></span><span></span></div>
+      </div>
+    </div>
+
+    <div id="error-banner" hidden></div>
+
+    <div id="quick-replies" hidden></div>
+
+    <div id="chat-input-area">
+      <div class="input-wrap">
+        <input type="text" id="chat-input" placeholder="Write a message…" autocomplete="off" maxlength="2000">
+        <button id="send-btn" aria-label="Send">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M5 12H19M19 12L12 5M19 12L12 19" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+      </div>
+    </div>
+
+  </div>
+
+  <script src="chatbot.js"></script>
+</body>
+</html>

@@ -1,8 +1,15 @@
 # API keys — jamais sur GitHub
 .env
 
-# Données clients — confidentielles
-clients/
+# Données clients — confidentielles (mais on garde les fichiers du widget)
+clients/*/scraped_data.json
+clients/*/system_prompt.txt
+clients/*/visual_analysis.json
+clients/*/art_direction.json
+clients/*/qa_results.json
+clients/*/qa_results.md
+clients/*/assets/
+clients/*/sources.txt
 
 # Fichiers temporaires
 .tmp/

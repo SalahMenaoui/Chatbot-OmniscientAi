@@ -19,6 +19,7 @@ import logging
 from fastapi import FastAPI, Request, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+from fastapi.staticfiles import StaticFiles
 import anthropic
 from dotenv import load_dotenv
 
@@ -83,3 +84,9 @@ async def chat(request: Request):
 @app.get("/health")
 async def health():
     return {"status": "ok"}
+
+
+# Serve chatbot widget files — must be mounted last
+clients_dir = os.path.join(os.path.dirname(__file__), "..", "clients")
+if os.path.isdir(clients_dir):
+    app.mount("/clients", StaticFiles(directory=clients_dir), name="clients")
