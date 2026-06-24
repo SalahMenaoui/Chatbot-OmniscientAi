@@ -1,0 +1,40 @@
+{
+  "botName": "Assistant",
+  "welcomeMessage": "Hi! How can I help you today?",
+  "placeholder": "Your message…",
+  "quickReplies": [],
+  "systemPrompt": "You are a helpful assistant.",
+
+  "proxyUrl": "/api/chat",
+  "model": "claude-haiku-4-5-20251001",
+  "maxTokens": 1024,
+
+  "avatarInitial": "A",
+  "avatarUrl": null,
+  "avatarInvert": false,
+  "colorAvatarBg": null,
+
+  "googleFontsUrl": null,
+  "fontFamily": null,
+
+  "colorPrimary": null,
+  "colorPrimaryDark": null,
+  "colorPrimaryContrast": null,
+  "colorBg": null,
+  "colorSurface": null,
+  "colorSurface2": null,
+  "colorText": null,
+  "colorTextMuted": null,
+  "colorBorder": null,
+  "colorBotBubble": null,
+  "colorBotText": null,
+  "colorUserBubble": null,
+  "colorUserText": null,
+  "colorHeaderBg": null,
+  "colorHeaderText": null,
+  "colorHeaderSubtext": null,
+
+  "radiusBubble": null,
+  "radiusInput": null,
+  "radiusSend": null
+}

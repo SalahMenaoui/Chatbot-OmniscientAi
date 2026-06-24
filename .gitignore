@@ -1,0 +1,12 @@
+# API keys — jamais sur GitHub
+.env
+
+# Données clients — confidentielles
+clients/
+
+# Fichiers temporaires
+.tmp/
+__pycache__/
+*.pyc
+*.pyo
+.DS_Store

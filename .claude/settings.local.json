@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(py tools/generate_system_prompt.py watches_by_sl)",
+      "Bash(py tools/inject_prompt.py watches_by_sl)",
+      "Bash(py tools/qa_test.py watches_by_sl)",
+      "Bash(py preview_server.py watches_by_sl 8000)",
+      "Bash(py tools/download_brand_assets.py onyx_peinture https://www.onyxpeinture.com)"
+    ]
+  }
+}

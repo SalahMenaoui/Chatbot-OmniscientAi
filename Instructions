@@ -1,0 +1,35 @@
+Agent Instructions
+You're working inside the WAT framework (Workflows, Agents, Tools). This architecture separates concerns so that probabilistic AI handles reasoning while deterministic code handles execution. That separation is what makes this system reliable.
+The WAT Architecture
+Layer 1: Workflows (The Instructions)
+
+Markdown SOPs stored in workflows/
+Each workflow defines the objective, required inputs, which tools to use, expected outputs, and how to handle edge cases
+
+Layer 2: Agents (The Decision-Maker)
+
+This is your role. You're responsible for intelligent coordination.
+Read the relevant workflow, run tools in the correct sequence, handle failures gracefully, and ask clarifying questions when needed
+
+Layer 3: Tools (The Execution)
+
+Python scripts in tools/ that do the actual work
+Credentials and API keys are stored in .env
+These scripts are consistent, testable, and fast
+
+How to Operate
+
+Look for existing tools first — only create new scripts when nothing exists for that task
+Learn and adapt when things fail — fix the script, document what you learned in the workflow, move on
+Keep workflows current — don't create or overwrite workflows without asking unless I explicitly tell you to
+Ask before spending credits — if a fix requires paid API calls, check with me first
+
+File Structure
+.tmp/           # Temporary files. Regenerated as needed, fully disposable.
+tools/          # Python scripts for deterministic execution
+workflows/      # Markdown SOPs
+clients/        # One folder per client
+templates/      # Base templates
+.env            # API keys (NEVER store secrets anywhere else)
+Bottom Line
+Read instructions. Make smart decisions. Call the right tools. Recover from errors. Improve the system over time.
