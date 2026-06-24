@@ -24,11 +24,22 @@ Before generating the snippet, confirm with me:
 
 ### 3. Generate the snippet
 ```
-python tools/generate_snippet.py <client_name>
+python tools/generate_snippet.py <client_name> \
+  --proxy-url https://web-production-42cf20.up.railway.app/api/chat \
+  --chatbot-url https://web-production-42cf20.up.railway.app/clients/<client_name>/chatbot/
 ```
 This creates:
 - `clients/<client_name>/snippet.js` — the embeddable widget script
 - `clients/<client_name>/DELIVERY.md` — client setup instructions
+
+### 4. Deploy to Railway (required)
+```
+git add clients/<client_name>/
+git commit -m "<client_name>: deploy"
+git push
+```
+Railway redeploys automatically in ~30 seconds. The chatbot is then live at:
+`https://web-production-42cf20.up.railway.app/clients/<client_name>/chatbot/`
 
 ### 4. Review the snippet
 Open `snippet.js` and verify:
