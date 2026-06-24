@@ -1,6 +1,6 @@
 /**
  * Aménagement Paysager AV Chatbot Widget
- * Generated: 2026-06-23
+ * Generated: 2026-06-24
  * Client: amenagement_paysager_rav
  *
  * INSTALLATION:
@@ -11,7 +11,7 @@
  */
 
 (function () {
-  var CHATBOT_URL = "https://YOUR_DOMAIN/clients/amenagement_paysager_rav/chatbot/";  // ← UPDATE THIS to where you host the chatbot files
+  var CHATBOT_URL = "https://web-production-42cf20.up.railway.app/clients/amenagement_paysager_rav/chatbot/";  // ← UPDATE THIS to where you host the chatbot files
   var PRIMARY_COLOR = "#6ab04c";
   var BOT_NAME = "Aménagement Paysager AV";
   var AVATAR_INITIAL = "A";
