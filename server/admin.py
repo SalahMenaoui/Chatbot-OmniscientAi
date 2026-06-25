@@ -55,7 +55,7 @@ def admin_set_tier(request: Request, client_key: str, tier: int = Form(...)):
 # ── Setup page ────────────────────────────────────────────────────────────────
 
 @router.get("/admin/setup", response_class=HTMLResponse)
-def admin_setup_get(request: Request, seeded: str = "", created: str = "", error: str = ""):
+def admin_setup_get(request: Request, seeded: str = "", created: str = "", added: str = "", error: str = ""):
     redir = _guard(request)
     if redir: return redir
     return templates.TemplateResponse(request, "admin/setup.html", {
@@ -63,6 +63,7 @@ def admin_setup_get(request: Request, seeded: str = "", created: str = "", error
         "dashboard_users": models.get_dashboard_users(),
         "seeded":          seeded,
         "created":         created,
+        "added":           added,
         "error":           error,
     })
 
@@ -73,6 +74,22 @@ def admin_setup_seed(request: Request):
     if redir: return redir
     models.seed_known_clients()
     return RedirectResponse("/admin/setup?seeded=1", status_code=302)
+
+
+@router.post("/admin/clients/new")
+def admin_new_client(
+    request:    Request,
+    name:       str = Form(...),
+    client_key: str = Form(...),
+):
+    redir = _guard(request)
+    if redir: return redir
+    try:
+        models.create_client(name.strip(), client_key.strip())
+    except Exception as e:
+        msg = str(e).replace(" ", "+")
+        return RedirectResponse(f"/admin/setup?error={msg}", status_code=302)
+    return RedirectResponse("/admin/setup?added=1", status_code=302)
 
 
 @router.post("/admin/setup/user")

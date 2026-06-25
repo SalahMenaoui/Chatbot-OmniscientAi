@@ -7,39 +7,43 @@
 <style>
   *{box-sizing:border-box;margin:0;padding:0}
   body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#0f172a;color:#e2e8f0;min-height:100vh;padding:40px 24px}
-  .header{max-width:600px;margin:0 auto 28px;display:flex;justify-content:space-between;align-items:center}
+  .header{max-width:640px;margin:0 auto 32px;display:flex;justify-content:space-between;align-items:center}
   .header h1{font-size:18px;font-weight:800;color:#f1f5f9}
-  .nav{display:flex;gap:16px;align-items:center}
+  .nav{display:flex;gap:16px}
   .nav a{font-size:13px;color:#64748b;text-decoration:none}
   .nav a:hover{color:#94a3b8}
-  .section{max-width:600px;margin:0 auto 24px;background:#1e293b;border-radius:16px;border:1px solid #334155;padding:24px}
-  .section h2{font-size:14px;font-weight:700;color:#f1f5f9;margin-bottom:4px}
-  .section p{font-size:13px;color:#64748b;margin-bottom:18px}
+  .section{max-width:640px;margin:0 auto 20px;background:#1e293b;border-radius:16px;border:1px solid #334155;padding:24px}
+  .section h2{font-size:14px;font-weight:700;color:#f1f5f9;margin-bottom:16px}
   .alert{padding:10px 14px;border-radius:8px;font-size:13px;font-weight:500;margin-bottom:16px}
   .alert-ok{background:#14532d;color:#86efac}
   .alert-err{background:#7f1d1d;color:#fca5a5}
   label{display:block;font-size:12px;font-weight:600;color:#94a3b8;margin-bottom:5px}
-  select,input[type=text],input[type=email],input[type=password]{
-    width:100%;padding:9px 12px;border-radius:8px;border:1px solid #334155;
-    background:#0f172a;color:#e2e8f0;font-size:13px;outline:none;
-    transition:border-color .15s;margin-bottom:12px}
-  select:focus,input:focus{border-color:#6366f1}
-  .btn{width:100%;padding:10px;border-radius:8px;border:none;cursor:pointer;
-       font-size:14px;font-weight:700;font-family:inherit;transition:background .15s}
+  input,select{width:100%;padding:9px 12px;border-radius:8px;border:1px solid #334155;background:#0f172a;color:#e2e8f0;font-size:13px;outline:none;transition:border-color .15s;margin-bottom:12px;font-family:inherit}
+  input:focus,select:focus{border-color:#6366f1}
+  .row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .btn{padding:9px 16px;border-radius:8px;border:none;cursor:pointer;font-size:13px;font-weight:700;font-family:inherit;transition:background .15s}
   .btn-primary{background:#6366f1;color:#fff}
   .btn-primary:hover{background:#4f46e5}
-  .btn-outline{background:#334155;color:#cbd5e1}
-  .btn-outline:hover{background:#475569}
-  .divider{border:none;border-top:1px solid #334155;margin:16px 0}
-  .user-list{list-style:none;display:flex;flex-direction:column;gap:8px}
-  .user-item{display:flex;justify-content:space-between;align-items:center;
-             background:#0f172a;border-radius:8px;padding:10px 14px}
-  .user-email{font-size:13px;color:#e2e8f0}
-  .user-client{font-size:11px;color:#64748b;margin-top:2px}
-  .empty{font-size:13px;color:#475569;font-style:italic}
+  .btn-ghost{background:#334155;color:#94a3b8}
+  .btn-ghost:hover{background:#475569;color:#fff}
+  .divider{border:none;border-top:1px solid #334155;margin:18px 0}
+  .client-list{display:flex;flex-direction:column;gap:8px}
+  .client-row{display:flex;justify-content:space-between;align-items:center;background:#0f172a;border-radius:8px;padding:10px 14px}
+  .client-info .name{font-size:13px;font-weight:600;color:#f1f5f9}
+  .client-info .key{font-size:11px;color:#475569;font-family:monospace;margin-top:2px}
+  .dots{display:flex;gap:4px;align-items:center}
+  .dot{width:8px;height:8px;border-radius:50%}
+  .dot-on{background:#6366f1}.dot-off{background:#334155}
+  .user-list{display:flex;flex-direction:column;gap:6px;margin-top:12px}
+  .user-row{display:flex;justify-content:space-between;background:#0f172a;border-radius:8px;padding:9px 14px;font-size:12px}
+  .user-row .email{color:#e2e8f0}
+  .user-row .client{color:#475569}
+  .empty{font-size:13px;color:#475569;font-style:italic;padding:8px 0}
+  .hint{font-size:11px;color:#475569;margin-top:-8px;margin-bottom:12px}
 </style>
 </head>
 <body>
+
 <div class="header">
   <h1>Setup</h1>
   <div class="nav">
@@ -48,31 +52,62 @@
   </div>
 </div>
 
-<!-- Step 1: Init DB -->
+{% if added %}<div class="alert alert-ok" style="max-width:640px;margin:0 auto 16px">✓ Client ajouté.</div>{% endif %}
+{% if seeded %}<div class="alert alert-ok" style="max-width:640px;margin:0 auto 16px">✓ Client démo chargé.</div>{% endif %}
+{% if created %}<div class="alert alert-ok" style="max-width:640px;margin:0 auto 16px">✓ Accès dashboard créé.</div>{% endif %}
+{% if error %}<div class="alert alert-err" style="max-width:640px;margin:0 auto 16px">✗ {{ error }}</div>{% endif %}
+
+<!-- Nouveau client -->
 <div class="section">
-  <h2>1 — Initialiser les clients</h2>
-  <p>Insère les 6 clients dans la base de données (sans écraser ceux qui existent déjà).</p>
-
-  {% if seeded %}
-  <div class="alert alert-ok">✓ Clients initialisés avec succès.</div>
-  {% endif %}
-
-  <form method="post" action="/admin/setup/seed">
-    <button type="submit" class="btn btn-primary">Initialiser les clients →</button>
+  <h2>Nouveau client</h2>
+  <form method="post" action="/admin/clients/new">
+    <div class="row">
+      <div>
+        <label>Nom affiché</label>
+        <input type="text" name="name" id="name" placeholder="Aqua Services" required>
+      </div>
+      <div>
+        <label>Clé (= nom du dossier)</label>
+        <input type="text" name="client_key" id="client_key" placeholder="aqua_services" required pattern="[a-z0-9_]+" title="Minuscules, chiffres et _ seulement">
+      </div>
+    </div>
+    <p class="hint">La clé doit correspondre exactement au nom du dossier dans /clients/</p>
+    <button type="submit" class="btn btn-primary">Ajouter →</button>
   </form>
 </div>
 
-<!-- Step 2: Create dashboard user -->
+<!-- Clients existants -->
 <div class="section">
-  <h2>2 — Créer un accès dashboard</h2>
-  <p>Associe un email + mot de passe à un client pour qu'il puisse se connecter à son dashboard.</p>
-
-  {% if created %}
-  <div class="alert alert-ok">✓ Accès créé avec succès.</div>
-  {% elif error %}
-  <div class="alert alert-err">✗ {{ error }}</div>
+  <h2>Clients en base</h2>
+  {% if clients %}
+  <div class="client-list">
+    {% for c in clients %}
+    <div class="client-row">
+      <div class="client-info">
+        <div class="name">{{ c.name }}</div>
+        <div class="key">{{ c.client_key }}</div>
+      </div>
+      <div class="dots">
+        <div class="dot {{ 'dot-on' if c.tier >= 1 else 'dot-off' }}"></div>
+        <div class="dot {{ 'dot-on' if c.tier >= 2 else 'dot-off' }}"></div>
+        <div class="dot {{ 'dot-on' if c.tier >= 3 else 'dot-off' }}"></div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <p class="empty">Aucun client.</p>
   {% endif %}
 
+  <div class="divider"></div>
+  <form method="post" action="/admin/setup/seed">
+    <button type="submit" class="btn btn-ghost">Charger client démo (Aménagement Paysager AV)</button>
+  </form>
+</div>
+
+<!-- Accès dashboard -->
+<div class="section">
+  <h2>Créer un accès dashboard</h2>
   {% if clients %}
   <form method="post" action="/admin/setup/user">
     <label>Client</label>
@@ -81,34 +116,44 @@
       <option value="{{ c.client_key }}">{{ c.name }}</option>
       {% endfor %}
     </select>
-
-    <label>Email</label>
-    <input type="email" name="email" placeholder="client@email.com" required>
-
-    <label>Mot de passe</label>
-    <input type="password" name="password" placeholder="••••••••" required>
-
-    <button type="submit" class="btn btn-primary">Créer l'accès →</button>
+    <div class="row">
+      <div>
+        <label>Email</label>
+        <input type="email" name="email" placeholder="client@email.com" required>
+      </div>
+      <div>
+        <label>Mot de passe</label>
+        <input type="password" name="password" placeholder="••••••••" required>
+      </div>
+    </div>
+    <button type="submit" class="btn btn-primary">Créer →</button>
   </form>
-  {% else %}
-  <p class="empty">Aucun client en DB — commencer par l'étape 1.</p>
-  {% endif %}
 
   {% if dashboard_users %}
-  <hr class="divider">
-  <label style="margin-bottom:10px">Accès existants</label>
-  <ul class="user-list">
+  <div class="divider"></div>
+  <label>Accès existants</label>
+  <div class="user-list">
     {% for u in dashboard_users %}
-    <li class="user-item">
-      <div>
-        <div class="user-email">{{ u.email }}</div>
-        <div class="user-client">{{ u.client_name }}</div>
-      </div>
-    </li>
+    <div class="user-row">
+      <span class="email">{{ u.email }}</span>
+      <span class="client">{{ u.client_name }}</span>
+    </div>
     {% endfor %}
-  </ul>
+  </div>
+  {% endif %}
+
+  {% else %}
+  <p class="empty">Ajoutez d'abord un client ci-dessus.</p>
   {% endif %}
 </div>
+
+<script>
+  document.getElementById("name").addEventListener("input", function() {
+    const key = this.value.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "")
+      .replace(/[^a-z0-9]+/g, "_").replace(/^_|_$/g, "");
+    document.getElementById("client_key").value = key;
+  });
+</script>
 
 </body>
 </html>

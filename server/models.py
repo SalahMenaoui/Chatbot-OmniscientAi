@@ -219,23 +219,23 @@ def get_email_logs(client_id: int):
         return [dict(r) for r in rows]
 
 
-KNOWN_CLIENTS = [
-    ("amenagement_paysager_rav",     "Aménagement Paysager AV"),
-    ("aqua_services",                "Aqua Services"),
-    ("onyx_peinture",                "Onyx Peinture"),
-    ("paysagement_cozzy",            "Paysagement Cozzy"),
-    ("plombier_expert_terrebonne",   "Plombier Expert Terrebonne"),
-    ("vetlife",                      "Vetlife"),
-]
+DEMO_CLIENT = ("amenagement_paysager_rav", "Aménagement Paysager AV")
 
 
 def seed_known_clients():
     with get_conn() as conn:
-        for key, name in KNOWN_CLIENTS:
-            conn.execute(
-                "INSERT OR IGNORE INTO clients (client_key, name) VALUES (?, ?)",
-                (key, name),
-            )
+        conn.execute(
+            "INSERT OR IGNORE INTO clients (client_key, name) VALUES (?, ?)",
+            DEMO_CLIENT,
+        )
+
+
+def create_client(name: str, client_key: str):
+    with get_conn() as conn:
+        conn.execute(
+            "INSERT INTO clients (name, client_key) VALUES (?, ?)",
+            (name, client_key),
+        )
 
 
 def get_dashboard_users():
