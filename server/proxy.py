@@ -110,6 +110,38 @@ async def health():
     return {"status": "ok"}
 
 
+@app.get("/debug/env")
+async def debug_env():
+    import sys, os
+    cwd = os.getcwd()
+    tmpl_rel = os.path.exists("templates")
+    tmpl_abs = os.path.join(cwd, "templates")
+    try:
+        import jinja2
+        jinja2_ver = jinja2.__version__
+    except ImportError:
+        jinja2_ver = "NOT INSTALLED"
+    try:
+        import itsdangerous
+        itsd_ver = itsdangerous.__version__
+    except ImportError:
+        itsd_ver = "NOT INSTALLED"
+    try:
+        import bcrypt
+        bcrypt_ver = bcrypt.__version__
+    except Exception:
+        bcrypt_ver = "NOT INSTALLED"
+    return {
+        "cwd": cwd,
+        "templates_relative_exists": tmpl_rel,
+        "templates_abs_path": tmpl_abs,
+        "jinja2": jinja2_ver,
+        "itsdangerous": itsd_ver,
+        "bcrypt": bcrypt_ver,
+        "python": sys.version,
+    }
+
+
 clients_dir = os.path.join(os.path.dirname(__file__), "..", "clients")
 if os.path.isdir(clients_dir):
     app.mount("/clients", StaticFiles(directory=clients_dir), name="clients")
