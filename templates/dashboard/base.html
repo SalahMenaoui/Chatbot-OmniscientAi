@@ -16,7 +16,7 @@
   .sidebar nav{padding:12px 10px;flex:1}
   .sidebar nav a{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:8px;text-decoration:none;color:#94a3b8;font-size:13px;font-weight:500;margin-bottom:2px;transition:background .15s,color .15s}
   .sidebar nav a:hover{background:#1e293b;color:#e2e8f0}
-  .sidebar nav a.active{background:#1d4ed8;color:#fff}
+  .sidebar nav a.active{background:#dc4545;color:#fff}
   .sidebar nav a svg{width:15px;height:15px;flex-shrink:0}
   .sidebar-footer{padding:12px 10px;border-top:1px solid #1e293b}
   .sidebar-footer a{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:8px;text-decoration:none;color:#64748b;font-size:13px;font-weight:500;transition:background .15s,color .15s}
@@ -47,17 +47,17 @@
   .badge-green{background:#dcfce7;color:#166534}
   .badge-gray {background:#f1f5f9;color:#64748b}
   .badge-red  {background:#fee2e2;color:#991b1b}
-  .badge-blue {background:#dbeafe;color:#1d4ed8}
+  .badge-blue {background:#dbeafe;color:#dc4545}
 
   /* ── Form ────────────────────────────────── */
   .form-group{margin-bottom:16px}
   label{display:block;font-size:13px;font-weight:600;color:#374151;margin-bottom:6px}
   input[type=text],input[type=email],input[type=number],input[type=password],select,textarea{width:100%;padding:9px 12px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:14px;color:#1e293b;background:#fff;outline:none;transition:border-color .15s,box-shadow .15s;font-family:inherit}
-  input:focus,select:focus,textarea:focus{border-color:#6366f1;box-shadow:0 0 0 3px rgba(99,102,241,.12)}
+  input:focus,select:focus,textarea:focus{border-color:#dc4545;box-shadow:0 0 0 3px rgba(99,102,241,.12)}
   .btn{display:inline-flex;align-items:center;gap:6px;padding:9px 16px;border-radius:8px;border:none;font-size:13px;font-weight:600;cursor:pointer;text-decoration:none;transition:background .15s,transform .1s;font-family:inherit}
   .btn:active{transform:scale(.98)}
-  .btn-primary{background:#6366f1;color:#fff}
-  .btn-primary:hover{background:#4f46e5}
+  .btn-primary{background:#dc4545;color:#fff}
+  .btn-primary:hover{background:#b83535}
   .btn-sm{padding:5px 10px;font-size:12px}
   .btn-ghost{background:transparent;color:#64748b;border:1.5px solid #e2e8f0}
   .btn-ghost:hover{background:#f8fafc}
@@ -74,7 +74,7 @@
   .toggle-wrap{display:flex;align-items:center;gap:10px}
   .toggle{appearance:none;width:40px;height:22px;background:#cbd5e1;border-radius:999px;cursor:pointer;position:relative;transition:background .2s;flex-shrink:0}
   .toggle::before{content:'';position:absolute;width:18px;height:18px;border-radius:50%;background:#fff;top:2px;left:2px;transition:transform .2s;box-shadow:0 1px 3px rgba(0,0,0,.2)}
-  .toggle:checked{background:#6366f1}
+  .toggle:checked{background:#dc4545}
   .toggle:checked::before{transform:translateX(18px)}
   .toggle-label{font-size:13px;color:#374151;font-weight:500}
 
@@ -87,7 +87,7 @@
 <body>
 <aside class="sidebar">
   <div class="sidebar-brand">
-    <h1>Omniscient AI</h1>
+    <h1>Omniscient<span style="color:#dc4545">AI</span></h1>
     <p>{{ client_name }}</p>
   </div>
   <nav>
