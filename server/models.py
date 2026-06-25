@@ -397,7 +397,18 @@ def get_dashboard_users():
 
 def get_all_clients():
     with get_conn() as conn:
-        rows = conn.execute("SELECT * FROM clients ORDER BY name").fetchall()
+        rows = conn.execute("""
+            SELECT c.id, c.name, c.client_key, c.tier,
+                (SELECT COUNT(*) FROM visitors v
+                 WHERE v.client_id = c.id
+                 AND date(v.created_at) >= date('now','start of month')) AS leads_month,
+                (SELECT COUNT(*) FROM conversations cv
+                 JOIN visitors v ON v.id = cv.visitor_id
+                 WHERE v.client_id = c.id
+                 AND date(cv.started_at) >= date('now','start of month')) AS convs_month
+            FROM clients c
+            ORDER BY c.name
+        """).fetchall()
         return [dict(r) for r in rows]
 
 

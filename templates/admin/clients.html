@@ -3,68 +3,94 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Clients — Admin Omniscient AI</title>
+<title>Clients — OmniscientAI Admin</title>
 <style>
-  *{box-sizing:border-box;margin:0;padding:0}
-  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#111111;color:#e2e8f0;min-height:100vh;padding:40px 24px}
-  .header{max-width:900px;margin:0 auto 28px;display:flex;justify-content:space-between;align-items:center}
-  .header h1{font-size:18px;font-weight:800;color:#f1f5f9}
-  .header-nav{display:flex;gap:16px;align-items:center}
-  .header-nav a{font-size:13px;color:#64748b;text-decoration:none}
-  .header-nav a:hover{color:#94a3b8}
-  .card{max-width:900px;margin:0 auto;background:#1c1c1c;border-radius:16px;border:1px solid #2c2c2c;overflow:hidden}
-  table{width:100%;border-collapse:collapse}
-  th{padding:11px 20px;font-size:11px;font-weight:700;color:#475569;text-transform:uppercase;letter-spacing:.06em;background:#111111;border-bottom:1px solid #2c2c2c;text-align:left}
-  td{padding:12px 20px;border-bottom:1px solid #1c1c1c;font-size:13px;color:#cbd5e1;vertical-align:middle}
-  tr:last-child td{border-bottom:none}
-  .dots{display:flex;gap:5px;align-items:center}
-  .dot{width:9px;height:9px;border-radius:50%}
-  .dot-on{background:#dc4545}.dot-off{background:#2c2c2c}
-  .tier-label{font-size:11px;color:#64748b;margin-left:6px}
-  .actions{display:flex;gap:6px;flex-wrap:wrap}
-  .btn{padding:5px 11px;border-radius:6px;border:none;cursor:pointer;font-size:12px;font-weight:600;transition:background .15s;font-family:inherit}
-  .btn-up{background:#dc4545;color:#fff}.btn-up:hover{background:#b83535}
-  .btn-down{background:#2c2c2c;color:#94a3b8}.btn-down:hover{background:#475569;color:#fff}
-  .btn-access{background:#0f766e;color:#fff}.btn-access:hover{background:#0d9488}
-  .mono{font-family:monospace;font-size:11px;color:#64748b}
-  .module-tags{font-size:11px;color:#475569}
-  .link-chatbot{font-size:12px;color:#dc4545;text-decoration:none;font-weight:600}
-  .link-chatbot:hover{color:#e87070}
-  /* Modal */
-  .overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:100;align-items:center;justify-content:center}
-  .overlay.open{display:flex}
-  .modal{background:#1c1c1c;border:1px solid #2c2c2c;border-radius:16px;padding:28px;width:340px}
-  .modal h3{font-size:15px;font-weight:700;color:#f1f5f9;margin-bottom:4px}
-  .modal p{font-size:12px;color:#64748b;margin-bottom:18px}
-  .modal label{display:block;font-size:12px;font-weight:600;color:#94a3b8;margin-bottom:5px}
-  .modal input{width:100%;padding:9px 12px;border-radius:8px;border:1px solid #2c2c2c;background:#111111;color:#e2e8f0;font-size:13px;outline:none;margin-bottom:12px;font-family:inherit}
-  .modal input:focus{border-color:#dc4545;box-shadow:0 0 0 3px rgba(220,69,69,.15)}
-  .modal-btns{display:flex;gap:8px;margin-top:4px}
-  .btn-confirm{flex:1;padding:9px;border-radius:8px;border:none;background:#dc4545;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit}
-  .btn-confirm:hover{background:#b83535}
-  .btn-cancel{padding:9px 16px;border-radius:8px;border:none;background:#2c2c2c;color:#94a3b8;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit}
-  .btn-config{background:#2c2c2c;color:#94a3b8;border:1px solid #3a3a3a;text-decoration:none}.btn-config:hover{background:#3a3a3a;color:#e2e8f0}
-  .btn-code{background:#2c2c2c;color:#94a3b8;border:1px solid #3a3a3a}.btn-code:hover{background:#3a3a3a;color:#e2e8f0}
-  .btn-rename{background:#2c2c2c;color:#94a3b8;border:1px solid #3a3a3a}.btn-rename:hover{background:#3a3a3a;color:#e2e8f0}
-  .btn-delete{background:#2c2c2c;color:#ef4444;border:1px solid #3a3a3a}.btn-delete:hover{background:#7f1d1d;color:#fca5a5;border-color:#7f1d1d}
-  .snippet{background:#111111;border:1px solid #2c2c2c;border-radius:8px;padding:12px 14px;font-family:monospace;font-size:12px;color:#e87070;word-break:break-all;margin-bottom:12px;line-height:1.6;user-select:all;cursor:text}
-  .alert{max-width:900px;margin:0 auto 16px;padding:10px 14px;border-radius:8px;font-size:13px;font-weight:500}
-  .alert-ok{background:#14532d;color:#86efac}
-  .alert-err{background:#7f1d1d;color:#fca5a5}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#111111;color:#e2e8f0;min-height:100vh;padding:36px 28px}
+
+.header{max-width:960px;margin:0 auto 28px;display:flex;justify-content:space-between;align-items:center}
+.logo{font-size:18px;font-weight:800;color:#f1f5f9}
+.logo span{color:#dc4545}
+.header-nav{display:flex;gap:12px;align-items:center}
+.btn-new{background:#dc4545;color:#fff;padding:8px 16px;border-radius:8px;font-size:13px;font-weight:700;text-decoration:none;border:none;cursor:pointer;font-family:inherit}
+.btn-new:hover{background:#b83535}
+.btn-link{font-size:13px;color:#475569;text-decoration:none}
+.btn-link:hover{color:#94a3b8}
+
+.alert{max-width:960px;margin:0 auto 16px;padding:10px 14px;border-radius:8px;font-size:13px;font-weight:500}
+.alert-ok{background:#14532d;color:#86efac}
+.alert-err{background:#7f1d1d;color:#fca5a5}
+
+/* Table card */
+.card{max-width:960px;margin:0 auto;background:#1c1c1c;border-radius:16px;border:1px solid #2c2c2c;overflow:hidden}
+table{width:100%;border-collapse:collapse}
+th{padding:10px 20px;font-size:11px;font-weight:700;color:#475569;text-transform:uppercase;letter-spacing:.06em;background:#161616;border-bottom:1px solid #2c2c2c;text-align:left}
+td{padding:14px 20px;border-bottom:1px solid #1e1e1e;vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#1f1f1f}
+
+.client-name{font-size:14px;font-weight:700;color:#f1f5f9;display:block;margin-bottom:3px}
+.client-key{font-family:monospace;font-size:11px;color:#475569}
+
+/* Tier badge */
+.tier{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:99px;font-size:11px;font-weight:700}
+.tier-1{background:#1e1e1e;color:#64748b;border:1px solid #2c2c2c}
+.tier-2{background:#1e3a5f;color:#60a5fa;border:1px solid #1d4ed8}
+.tier-3{background:#3b1a1a;color:#f87171;border:1px solid #dc4545}
+.tier-dot{width:6px;height:6px;border-radius:50%;background:currentColor}
+
+/* Stats */
+.stats{font-size:12px;color:#64748b;white-space:nowrap}
+.stats strong{color:#e2e8f0;font-weight:600}
+.stats-zero{color:#2c2c2c}
+
+/* Chatbot link */
+.chatbot-link{font-size:12px;color:#dc4545;text-decoration:none;font-weight:600;white-space:nowrap}
+.chatbot-link:hover{color:#e87070}
+
+/* Dropdown */
+.dd{position:relative;display:inline-block}
+.dd-btn{background:#2c2c2c;border:1px solid #3a3a3a;color:#94a3b8;width:32px;height:32px;border-radius:8px;cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;line-height:1;padding-bottom:2px;transition:background .15s}
+.dd-btn:hover{background:#3a3a3a;color:#e2e8f0}
+.dd-menu{display:none;position:absolute;right:0;top:calc(100% + 6px);background:#1c1c1c;border:1px solid #2c2c2c;border-radius:10px;min-width:190px;padding:6px;z-index:999;box-shadow:0 8px 32px rgba(0,0,0,.5)}
+.dd-menu.open{display:block}
+.dd-menu a,.dd-menu button{display:flex;align-items:center;gap:8px;width:100%;padding:8px 10px;border-radius:7px;font-size:13px;font-weight:500;color:#cbd5e1;text-decoration:none;background:none;border:none;cursor:pointer;font-family:inherit;text-align:left}
+.dd-menu a:hover,.dd-menu button:hover{background:#2c2c2c;color:#f1f5f9}
+.dd-menu .danger{color:#f87171}
+.dd-menu .danger:hover{background:#3b1a1a;color:#fca5a5}
+.dd-menu hr{border:none;border-top:1px solid #2c2c2c;margin:4px 0}
+.dd-icon{font-size:14px;width:16px;text-align:center;flex-shrink:0}
+
+/* Modals */
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:1000;align-items:center;justify-content:center}
+.overlay.open{display:flex}
+.modal{background:#1c1c1c;border:1px solid #2c2c2c;border-radius:16px;padding:28px;width:360px}
+.modal h3{font-size:15px;font-weight:700;color:#f1f5f9;margin-bottom:4px}
+.modal p{font-size:12px;color:#64748b;margin-bottom:16px}
+.modal label{display:block;font-size:12px;font-weight:600;color:#94a3b8;margin-bottom:5px}
+.modal input{width:100%;padding:9px 12px;border-radius:8px;border:1px solid #2c2c2c;background:#111;color:#e2e8f0;font-size:13px;outline:none;margin-bottom:12px;font-family:inherit}
+.modal input:focus{border-color:#dc4545;box-shadow:0 0 0 3px rgba(220,69,69,.15)}
+.modal-btns{display:flex;gap:8px;margin-top:4px}
+.btn-cancel{padding:9px 16px;border-radius:8px;border:none;background:#2c2c2c;color:#94a3b8;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit}
+.btn-confirm{flex:1;padding:9px;border-radius:8px;border:none;background:#dc4545;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit}
+.btn-confirm:hover{background:#b83535}
+.btn-confirm-red{background:#dc2626}
+.snippet{background:#111;border:1px solid #2c2c2c;border-radius:8px;padding:12px 14px;font-family:monospace;font-size:11px;color:#e87070;word-break:break-all;margin-bottom:12px;line-height:1.6;user-select:all}
+.warn-text{font-size:12px;color:#f87171;margin-bottom:16px}
 </style>
 </head>
 <body>
 
 <div class="header">
-  <h1>Omniscient<span style="color:#dc4545">AI</span> — Clients</h1>
+  <div class="logo">Omniscient<span>AI</span></div>
   <div class="header-nav">
-    <a href="/admin/setup">+ Nouveau client</a>
-    <a href="/admin/logout">Déconnexion</a>
+    <a href="/admin/setup" class="btn-new">+ Nouveau client</a>
+    <a href="/admin/logout" class="btn-link">Déconnexion</a>
   </div>
 </div>
 
 {% if created %}<div class="alert alert-ok">✓ Accès dashboard créé.</div>{% endif %}
-{% if error %}<div class="alert alert-err">✗ {{ error }}</div>{% endif %}
+{% if error   %}<div class="alert alert-err">✗ {{ error }}</div>{% endif %}
 
 <div class="card">
   <table>
@@ -72,100 +98,113 @@
       <tr>
         <th>Client</th>
         <th>Tier</th>
-        <th>Modules</th>
-        <th>Actions</th>
+        <th>Ce mois</th>
+        <th>Chatbot</th>
+        <th></th>
       </tr>
     </thead>
     <tbody>
-      {% for c in clients %}
+    {% for c in clients %}
       <tr>
         <td>
-          <strong style="color:#f1f5f9;">{{ c.name }}</strong>
-          <span class="mono" style="margin-left:8px">{{ c.client_key }}</span><br>
-          <a class="link-chatbot" href="/clients/{{ c.client_key }}/chatbot/" target="_blank">↗ Chatbot</a>
+          <span class="client-name">{{ c.name }}</span>
+          <span class="client-key">{{ c.client_key }}</span>
         </td>
         <td>
-          <div class="dots">
-            <div class="dot {{ 'dot-on' if c.tier >= 1 else 'dot-off' }}"></div>
-            <div class="dot {{ 'dot-on' if c.tier >= 2 else 'dot-off' }}"></div>
-            <div class="dot {{ 'dot-on' if c.tier >= 3 else 'dot-off' }}"></div>
-            <span class="tier-label">Tier {{ c.tier }}</span>
-          </div>
+          {% if c.tier == 1 %}
+            <span class="tier tier-1"><span class="tier-dot"></span>Chatbot</span>
+          {% elif c.tier == 2 %}
+            <span class="tier tier-2"><span class="tier-dot"></span>Dashboard</span>
+          {% else %}
+            <span class="tier tier-3"><span class="tier-dot"></span>Email</span>
+          {% endif %}
         </td>
-        <td class="module-tags">
-          Chatbot{% if c.tier >= 2 %} · Dashboard{% endif %}{% if c.tier >= 3 %} · Email{% endif %}
+        <td class="stats">
+          {% if c.leads_month or c.convs_month %}
+            <strong>{{ c.leads_month }}</strong> leads · <strong>{{ c.convs_month }}</strong> conv
+          {% else %}
+            <span class="stats-zero">—</span>
+          {% endif %}
         </td>
         <td>
-          <div class="actions">
-            {% if c.tier < 3 %}
-            <form method="post" action="/admin/clients/{{ c.client_key }}/tier">
-              <input type="hidden" name="tier" value="{{ c.tier + 1 }}">
-              <button type="submit" class="btn btn-up">▲ Upgrade</button>
-            </form>
-            {% endif %}
-            {% if c.tier > 1 %}
-            <form method="post" action="/admin/clients/{{ c.client_key }}/tier">
-              <input type="hidden" name="tier" value="{{ c.tier - 1 }}">
-              <button type="submit" class="btn btn-down">▼ Downgrade</button>
-            </form>
-            {% endif %}
-            {% if c.tier >= 2 %}
-            <button class="btn btn-access" onclick="openModal('{{ c.client_key }}', '{{ c.name }}')">+ Accès dashboard</button>
-            {% endif %}
-            <a href="/admin/clients/{{ c.client_key }}/config" class="btn btn-config">⚙ Config</a>
-            <button class="btn btn-code" onclick="openCode('{{ c.client_key }}', '{{ c.name }}')">⟨/⟩ Intégrer</button>
-            <button class="btn btn-rename" onclick="openRename('{{ c.client_key }}', '{{ c.name }}')">✎ Renommer</button>
-            <button class="btn btn-delete" onclick="openDelete('{{ c.client_key }}', '{{ c.name }}')">✕ Supprimer</button>
+          <a class="chatbot-link" href="/clients/{{ c.client_key }}/chatbot/" target="_blank">↗ Ouvrir</a>
+        </td>
+        <td>
+          <div class="dd" id="dd-{{ c.client_key }}">
+            <button class="dd-btn" onclick="toggleDD('{{ c.client_key }}')" title="Actions">···</button>
+            <div class="dd-menu" id="menu-{{ c.client_key }}">
+              <a href="/admin/clients/{{ c.client_key }}/config"><span class="dd-icon">⚙</span>Config chatbot</a>
+              <button onclick="closeDD('{{ c.client_key }}');openCode('{{ c.client_key }}','{{ c.name }}')"><span class="dd-icon">⟨/⟩</span>Intégrer</button>
+              <hr>
+              {% if c.tier >= 2 %}
+              <button onclick="closeDD('{{ c.client_key }}');openModal('{{ c.client_key }}','{{ c.name }}')"><span class="dd-icon">+</span>Accès dashboard</button>
+              {% endif %}
+              {% if c.tier < 3 %}
+              <form method="post" action="/admin/clients/{{ c.client_key }}/tier" style="display:contents">
+                <input type="hidden" name="tier" value="{{ c.tier + 1 }}">
+                <button type="submit"><span class="dd-icon">▲</span>Upgrade Tier {{ c.tier + 1 }}</button>
+              </form>
+              {% endif %}
+              {% if c.tier > 1 %}
+              <form method="post" action="/admin/clients/{{ c.client_key }}/tier" style="display:contents">
+                <input type="hidden" name="tier" value="{{ c.tier - 1 }}">
+                <button type="submit"><span class="dd-icon">▼</span>Rétrograder Tier {{ c.tier - 1 }}</button>
+              </form>
+              {% endif %}
+              <hr>
+              <button onclick="closeDD('{{ c.client_key }}');openRename('{{ c.client_key }}','{{ c.name }}')"><span class="dd-icon">✎</span>Renommer</button>
+              <button class="danger" onclick="closeDD('{{ c.client_key }}');openDelete('{{ c.client_key }}','{{ c.name }}')"><span class="dd-icon">✕</span>Supprimer</button>
+            </div>
           </div>
         </td>
       </tr>
-      {% endfor %}
+    {% endfor %}
     </tbody>
   </table>
 </div>
 
 <!-- Modal accès dashboard -->
-<div class="overlay" id="overlay" onclick="if(event.target===this)closeModal()">
+<div class="overlay" id="overlay-access" onclick="if(event.target===this)this.classList.remove('open')">
   <div class="modal">
-    <h3 id="modal-title">Créer un accès dashboard</h3>
-    <p id="modal-sub"></p>
-    <form id="modal-form" method="post" autocomplete="off">
+    <h3 id="access-title">Créer un accès dashboard</h3>
+    <p id="access-sub"></p>
+    <form id="access-form" method="post" autocomplete="off">
       <label>Email</label>
       <input type="email" name="email" placeholder="client@email.com" required autocomplete="new-password">
       <label>Mot de passe</label>
       <input type="password" name="password" placeholder="••••••••" required autocomplete="new-password">
       <div class="modal-btns">
-        <button type="button" class="btn-cancel" onclick="closeModal()">Annuler</button>
+        <button type="button" class="btn-cancel" onclick="document.getElementById('overlay-access').classList.remove('open')">Annuler</button>
         <button type="submit" class="btn-confirm">Créer →</button>
       </div>
     </form>
   </div>
 </div>
 
-<!-- Modal code d'intégration -->
-<div class="overlay" id="overlay-code" onclick="if(event.target===this)closeCode()">
+<!-- Modal intégrer -->
+<div class="overlay" id="overlay-code" onclick="if(event.target===this)this.classList.remove('open')">
   <div class="modal" style="width:480px">
     <h3 id="code-title">Code d'intégration</h3>
-    <p id="code-sub" style="margin-bottom:14px"></p>
+    <p id="code-sub"></p>
     <div class="snippet" id="code-snippet"></div>
-    <p style="font-size:11px;color:#475569;margin-bottom:14px">Colle ce code avant la balise <code style="color:#94a3b8">&lt;/body&gt;</code> du site client.</p>
+    <p style="font-size:11px;color:#475569;margin-bottom:14px">Colle ce code avant <code style="color:#94a3b8">&lt;/body&gt;</code> sur le site client.</p>
     <div class="modal-btns">
-      <button type="button" class="btn-cancel" onclick="closeCode()">Fermer</button>
+      <button type="button" class="btn-cancel" onclick="document.getElementById('overlay-code').classList.remove('open')">Fermer</button>
       <button type="button" class="btn-confirm" onclick="copyCode()">Copier →</button>
     </div>
   </div>
 </div>
 
 <!-- Modal renommer -->
-<div class="overlay" id="overlay-rename" onclick="if(event.target===this)closeRename()">
+<div class="overlay" id="overlay-rename" onclick="if(event.target===this)this.classList.remove('open')">
   <div class="modal">
-    <h3>Renommer le client</h3>
-    <p id="rename-sub" style="margin-bottom:14px"></p>
+    <h3>Renommer</h3>
+    <p id="rename-sub"></p>
     <form id="rename-form" method="post">
       <label>Nouveau nom</label>
-      <input type="text" name="name" id="rename-input" required placeholder="Nom du client">
+      <input type="text" name="name" id="rename-input" required>
       <div class="modal-btns">
-        <button type="button" class="btn-cancel" onclick="closeRename()">Annuler</button>
+        <button type="button" class="btn-cancel" onclick="document.getElementById('overlay-rename').classList.remove('open')">Annuler</button>
         <button type="submit" class="btn-confirm">Renommer →</button>
       </div>
     </form>
@@ -173,70 +212,76 @@
 </div>
 
 <!-- Modal supprimer -->
-<div class="overlay" id="overlay-delete" onclick="if(event.target===this)closeDelete()">
+<div class="overlay" id="overlay-delete" onclick="if(event.target===this)this.classList.remove('open')">
   <div class="modal">
-    <h3 style="color:#ef4444">Supprimer le client</h3>
-    <p id="delete-sub" style="margin-bottom:14px"></p>
-    <p style="font-size:12px;color:#ef4444;margin-bottom:18px">Cette action supprime le client, ses visiteurs, ses conversations et ses accès dashboard. Irréversible.</p>
+    <h3 style="color:#f87171">Supprimer</h3>
+    <p id="delete-sub"></p>
+    <p class="warn-text">Supprime le client, ses visiteurs, conversations et accès dashboard. Irréversible.</p>
     <form id="delete-form" method="post">
       <div class="modal-btns">
-        <button type="button" class="btn-cancel" onclick="closeDelete()">Annuler</button>
-        <button type="submit" class="btn-confirm" style="background:#dc2626">Supprimer définitivement</button>
+        <button type="button" class="btn-cancel" onclick="document.getElementById('overlay-delete').classList.remove('open')">Annuler</button>
+        <button type="submit" class="btn-confirm btn-confirm-red">Supprimer définitivement</button>
       </div>
     </form>
   </div>
 </div>
 
 <script>
-  function openModal(key, name) {
-    document.getElementById('modal-title').textContent = 'Accès dashboard — ' + name;
-    document.getElementById('modal-sub').textContent = 'Crée un login pour que ' + name + ' accède à son dashboard.';
-    document.getElementById('modal-form').action = '/admin/clients/' + key + '/create-user';
-    document.getElementById('overlay').classList.add('open');
-  }
-  function closeModal() {
-    document.getElementById('overlay').classList.remove('open');
-  }
+// ── Dropdown ─────────────────────────────────────────────────────
+function toggleDD(key) {
+  var menu = document.getElementById('menu-' + key);
+  var wasOpen = menu.classList.contains('open');
+  closeAllDD();
+  if (!wasOpen) menu.classList.add('open');
+}
+function closeDD(key) {
+  document.getElementById('menu-' + key).classList.remove('open');
+}
+function closeAllDD() {
+  document.querySelectorAll('.dd-menu').forEach(function(m){ m.classList.remove('open'); });
+}
+document.addEventListener('click', function(e) {
+  if (!e.target.closest('.dd')) closeAllDD();
+});
 
-  var _codeSnippet = '';
-  function openCode(key, name) {
-    var origin = window.location.origin;
-    _codeSnippet = '<script src="' + origin + '/static/widget.js" data-client="' + key + '"><\/script>';
-    document.getElementById('code-title').textContent = 'Intégrer — ' + name;
-    document.getElementById('code-sub').textContent = 'Widget flottant à coller sur le site de ' + name + '.';
-    document.getElementById('code-snippet').textContent = _codeSnippet;
-    document.getElementById('overlay-code').classList.add('open');
-  }
-  function closeCode() {
-    document.getElementById('overlay-code').classList.remove('open');
-  }
-  function copyCode() {
-    navigator.clipboard.writeText(_codeSnippet).then(function() {
-      var btn = event.target;
-      btn.textContent = 'Copié ✓';
-      setTimeout(function(){ btn.textContent = 'Copier →'; }, 2000);
-    });
-  }
+// ── Modals ───────────────────────────────────────────────────────
+function openModal(key, name) {
+  document.getElementById('access-title').textContent = 'Accès dashboard — ' + name;
+  document.getElementById('access-sub').textContent   = 'Crée un login pour que ' + name + ' accède à son dashboard.';
+  document.getElementById('access-form').action       = '/admin/clients/' + key + '/create-user';
+  document.getElementById('overlay-access').classList.add('open');
+}
 
-  function openRename(key, name) {
-    document.getElementById('rename-sub').textContent = 'Client : ' + name;
-    document.getElementById('rename-input').value = name;
-    document.getElementById('rename-form').action = '/admin/clients/' + key + '/rename';
-    document.getElementById('overlay-rename').classList.add('open');
-    setTimeout(function(){ document.getElementById('rename-input').select(); }, 50);
-  }
-  function closeRename() {
-    document.getElementById('overlay-rename').classList.remove('open');
-  }
+var _codeSnippet = '';
+function openCode(key, name) {
+  var origin   = window.location.origin;
+  _codeSnippet = '<script src="' + origin + '/static/widget.js" data-client="' + key + '"><\/script>';
+  document.getElementById('code-title').textContent = 'Intégrer — ' + name;
+  document.getElementById('code-sub').textContent   = 'Widget flottant pour le site de ' + name + '.';
+  document.getElementById('code-snippet').textContent = _codeSnippet;
+  document.getElementById('overlay-code').classList.add('open');
+}
+function copyCode() {
+  navigator.clipboard.writeText(_codeSnippet).then(function() {
+    var btn = event.target;
+    btn.textContent = 'Copié ✓';
+    setTimeout(function(){ btn.textContent = 'Copier →'; }, 2000);
+  });
+}
 
-  function openDelete(key, name) {
-    document.getElementById('delete-sub').textContent = 'Tu es sur le point de supprimer "' + name + '" (' + key + ').';
-    document.getElementById('delete-form').action = '/admin/clients/' + key + '/delete';
-    document.getElementById('overlay-delete').classList.add('open');
-  }
-  function closeDelete() {
-    document.getElementById('overlay-delete').classList.remove('open');
-  }
+function openRename(key, name) {
+  document.getElementById('rename-sub').textContent    = 'Client actuel : ' + name;
+  document.getElementById('rename-input').value        = name;
+  document.getElementById('rename-form').action        = '/admin/clients/' + key + '/rename';
+  document.getElementById('overlay-rename').classList.add('open');
+  setTimeout(function(){ document.getElementById('rename-input').select(); }, 50);
+}
+
+function openDelete(key, name) {
+  document.getElementById('delete-sub').textContent = 'Supprimer "' + name + '" (' + key + ') ?';
+  document.getElementById('delete-form').action     = '/admin/clients/' + key + '/delete';
+  document.getElementById('overlay-delete').classList.add('open');
+}
 </script>
 </body>
 </html>
