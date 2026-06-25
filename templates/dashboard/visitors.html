@@ -49,7 +49,7 @@
 
 <!-- Chart -->
 <div class="chart-card">
-  <h3>Activité — 30 derniers jours</h3>
+  <h3 id="chart-title">Activité</h3>
   <div class="chart-wrap">
     <canvas id="activity-chart"></canvas>
   </div>
@@ -113,20 +113,55 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
 <script>
 (function() {
-  const raw = {{ activity | tojson }};
+  var raw    = {{ activity | tojson }};
+  var period = '{{ period }}';
+  var map    = {};
+  raw.forEach(function(r){ map[r.slot] = r.count; });
 
-  // Build last-30-days labels
-  const labels = [], counts = [];
-  const today = new Date();
-  const map   = {};
-  raw.forEach(function(r){ map[r.day] = r.count; });
+  var labels = [], counts = [];
+  var now    = new Date();
+  var titles = { '1h': 'Activité — dernière heure', '24h': 'Activité — dernières 24h', '7d': 'Activité — 7 derniers jours' };
+  var maxTicks = 10;
 
-  for (var i = 29; i >= 0; i--) {
-    var d = new Date(today);
-    d.setDate(d.getDate() - i);
-    var key = d.toISOString().slice(0, 10);
-    labels.push(key.slice(5)); // MM-DD
-    counts.push(map[key] || 0);
+  if (period === '1h') {
+    // One point per minute, last 60 minutes, UTC slots "HH:MM"
+    document.getElementById('chart-title').textContent = titles['1h'];
+    maxTicks = 12;
+    for (var i = 59; i >= 0; i--) {
+      var d   = new Date(now.getTime() - i * 60000);
+      var key = d.toISOString().slice(11, 16); // UTC HH:MM
+      labels.push(i % 5 === 0 ? key : '');    // show label every 5 min
+      counts.push(map[key] || 0);
+    }
+  } else if (period === '24h') {
+    // One point per hour, last 24 hours, UTC slots "HH:00"
+    document.getElementById('chart-title').textContent = titles['24h'];
+    maxTicks = 12;
+    for (var i = 23; i >= 0; i--) {
+      var d   = new Date(now.getTime() - i * 3600000);
+      var key = d.toISOString().slice(11, 13) + ':00'; // UTC HH:00
+      labels.push(key);
+      counts.push(map[key] || 0);
+    }
+  } else if (period === '7d') {
+    // One point per day, last 7 days
+    document.getElementById('chart-title').textContent = titles['7d'];
+    maxTicks = 7;
+    for (var i = 6; i >= 0; i--) {
+      var d   = new Date(now.getTime() - i * 86400000);
+      var key = d.toISOString().slice(0, 10); // UTC YYYY-MM-DD
+      labels.push(key.slice(5));              // MM-DD
+      counts.push(map[key] || 0);
+    }
+  } else {
+    // Default: 30 days
+    document.getElementById('chart-title').textContent = 'Activité — 30 derniers jours';
+    for (var i = 29; i >= 0; i--) {
+      var d   = new Date(now.getTime() - i * 86400000);
+      var key = d.toISOString().slice(0, 10);
+      labels.push(key.slice(5));
+      counts.push(map[key] || 0);
+    }
   }
 
   new Chart(document.getElementById('activity-chart'), {
@@ -134,22 +169,22 @@
     data: {
       labels: labels,
       datasets: [{
-        data:            counts,
-        borderColor:     '#dc4545',
-        backgroundColor: 'rgba(220,69,69,.08)',
-        borderWidth:     2,
-        pointRadius:     counts.map(function(v){ return v > 0 ? 3 : 0; }),
+        data:                 counts,
+        borderColor:          '#dc4545',
+        backgroundColor:      'rgba(220,69,69,.08)',
+        borderWidth:          2,
+        pointRadius:          counts.map(function(v){ return v > 0 ? 3 : 0; }),
         pointBackgroundColor: '#dc4545',
-        fill:            true,
-        tension:         0.3,
+        fill:                 true,
+        tension:              0.3,
       }]
     },
     options: {
-      responsive: true,
+      responsive:          true,
       maintainAspectRatio: false,
       plugins: { legend: { display: false } },
       scales: {
-        x: { grid: { display: false }, ticks: { font: { size: 10 }, color: '#94a3b8', maxTicksLimit: 10 } },
+        x: { grid: { display: false }, ticks: { font: { size: 10 }, color: '#94a3b8', maxTicksLimit: maxTicks } },
         y: { beginAtZero: true, ticks: { stepSize: 1, font: { size: 10 }, color: '#94a3b8' }, grid: { color: '#f1f5f9' } }
       }
     }

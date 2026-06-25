@@ -13,7 +13,10 @@
     '#_oai_btn:hover{transform:scale(1.07);box-shadow:0 6px 28px rgba(220,69,69,.55)}' +
     '#_oai_frame{position:fixed;bottom:92px;right:24px;width:390px;height:600px;border:none;border-radius:20px;z-index:2147483645;box-shadow:0 16px 56px rgba(0,0,0,.25);opacity:0;pointer-events:none;transform:translateY(14px) scale(.97);transition:opacity .22s ease,transform .22s ease}' +
     '#_oai_frame.oai-open{opacity:1;pointer-events:auto;transform:none}' +
-    '@media(max-width:460px){#_oai_frame{width:calc(100vw - 16px);height:calc(100svh - 88px);right:8px;bottom:76px;border-radius:16px}}';
+    '@media(max-width:460px){#_oai_frame{width:calc(100vw - 16px);height:calc(100svh - 88px);right:8px;bottom:76px;border-radius:16px}}' +
+    '@keyframes _oai_nudge{0%,100%{transform:translateY(0) scale(1)}18%{transform:translateY(-9px) scale(1.07)}32%{transform:translateY(0) scale(1)}46%{transform:translateY(-5px) scale(1.03)}60%,100%{transform:translateY(0) scale(1)}}' +
+    '@keyframes _oai_glow{0%,100%{box-shadow:0 4px 20px rgba(220,69,69,.45)}25%{box-shadow:0 4px 20px rgba(220,69,69,.45),0 0 0 10px rgba(220,69,69,.18),0 0 32px rgba(220,69,69,.3)}55%{box-shadow:0 4px 20px rgba(220,69,69,.45)}}' +
+    '#_oai_btn._oai_idle{animation:_oai_nudge .9s ease,_oai_glow .9s ease}';
   document.head.appendChild(s);
 
   /* ── Icons ──────────────────────────────────────────────── */
@@ -43,4 +46,17 @@
     btn.innerHTML = open ? ICON_CLOSE : ICON_CHAT;
     btn.setAttribute('aria-label', open ? 'Fermer le chat' : 'Ouvrir le chat');
   });
+
+  /* ── Idle bounce + glow ─────────────────────────────────── */
+  btn.addEventListener('animationend', function () {
+    btn.classList.remove('_oai_idle');
+  });
+  function nudge() {
+    if (open) return;
+    btn.classList.remove('_oai_idle');
+    void btn.offsetWidth; // force reflow so animation restarts
+    btn.classList.add('_oai_idle');
+  }
+  setTimeout(nudge, 3000);
+  setInterval(nudge, 7000);
 })();

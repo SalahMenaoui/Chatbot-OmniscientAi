@@ -202,16 +202,34 @@ def get_stats(client_id: int, period: str = "") -> dict:
     return {"leads": leads, "conversations": convs, "messages": msgs}
 
 
-def get_daily_activity(client_id: int, days: int = 30) -> list:
-    since = (datetime.utcnow() - timedelta(days=days)).strftime("%Y-%m-%d")
+def get_period_activity(client_id: int, period: str = "") -> list:
+    """Return {slot, count} list with granularity matching period."""
+    if period == "1h":
+        since    = (datetime.utcnow() - timedelta(hours=1)).strftime("%Y-%m-%d %H:%M:%S")
+        slot_fmt = "%H:%M"
+        grp_fmt  = "%Y-%m-%d %H:%M"
+    elif period == "24h":
+        since    = (datetime.utcnow() - timedelta(hours=24)).strftime("%Y-%m-%d %H:%M:%S")
+        slot_fmt = "%H:00"
+        grp_fmt  = "%Y-%m-%d %H"
+    elif period == "7d":
+        since    = (datetime.utcnow() - timedelta(days=7)).strftime("%Y-%m-%d")
+        slot_fmt = "%Y-%m-%d"
+        grp_fmt  = "%Y-%m-%d"
+    else:
+        since    = (datetime.utcnow() - timedelta(days=30)).strftime("%Y-%m-%d")
+        slot_fmt = "%Y-%m-%d"
+        grp_fmt  = "%Y-%m-%d"
+
     with get_conn() as conn:
         rows = conn.execute(
-            """SELECT date(c.started_at) AS day, COUNT(*) AS count
-               FROM conversations c
-               JOIN visitors v ON v.id = c.visitor_id
-               WHERE v.client_id = ? AND date(c.started_at) >= ?
-               GROUP BY date(c.started_at)
-               ORDER BY day""",
+            f"""SELECT strftime('{slot_fmt}', c.started_at) AS slot,
+                       COUNT(*) AS count
+                FROM conversations c
+                JOIN visitors v ON v.id = c.visitor_id
+                WHERE v.client_id = ? AND c.started_at >= ?
+                GROUP BY strftime('{grp_fmt}', c.started_at)
+                ORDER BY slot""",
             (client_id, since)
         ).fetchall()
     return [dict(r) for r in rows]

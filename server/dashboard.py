@@ -73,7 +73,7 @@ def visitors(request: Request, q: str = "", period: str = ""):
     return templates.TemplateResponse(request, "dashboard/visitors.html", {
         "visitors":     models.get_visitors(cid, search=q, period=period),
         "stats":        models.get_stats(cid, period=period),
-        "activity":     models.get_daily_activity(cid, days=30),
+        "activity":     models.get_period_activity(cid, period=period),
         "search":       q,
         "period":       period,
         "period_label": _PERIOD_LABELS.get(period, "Total"),
