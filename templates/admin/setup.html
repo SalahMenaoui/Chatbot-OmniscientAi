@@ -111,7 +111,7 @@
   {% if clients %}
   <form method="post" action="/admin/setup/user">
     <label>Client</label>
-    <select name="client_key">
+    <select name="client_id">
       {% for c in clients %}
       <option value="{{ c.id }}">{{ c.name }}</option>
       {% endfor %}
