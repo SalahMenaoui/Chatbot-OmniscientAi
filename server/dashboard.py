@@ -16,6 +16,15 @@ def _cname(request: Request):
     return request.session.get("dashboard_client_name", "")
 
 
+def _ctier(request: Request) -> int:
+    cid = _cid(request)
+    if not cid:
+        return 0
+    with models.get_conn() as conn:
+        row = conn.execute("SELECT tier FROM clients WHERE id = ?", (cid,)).fetchone()
+    return dict(row)["tier"] if row else 0
+
+
 @router.get("/dashboard/login", response_class=HTMLResponse)
 def login_get(request: Request):
     if _cid(request):
@@ -55,6 +64,7 @@ def visitors(request: Request, q: str = ""):
         "visitors":    models.get_visitors(_cid(request), search=q),
         "search":      q,
         "client_name": _cname(request),
+        "client_tier": _ctier(request),
         "active":      "visitors",
     })
 
@@ -73,6 +83,7 @@ def visitor_detail(request: Request, visitor_id: int):
         "visitor":       visitor,
         "conversations": conversations,
         "client_name":   _cname(request),
+        "client_tier":   _ctier(request),
         "active":        "visitors",
     })
 
@@ -81,9 +92,12 @@ def visitor_detail(request: Request, visitor_id: int):
 def settings_get(request: Request):
     if not _cid(request):
         return RedirectResponse("/dashboard/login", status_code=302)
+    if _ctier(request) < 3:
+        return RedirectResponse("/dashboard/", status_code=302)
     return templates.TemplateResponse(request, "dashboard/settings.html", {
         "settings":    models.get_email_settings(_cid(request)),
         "client_name": _cname(request),
+        "client_tier": 3,
         "active":      "settings",
         "saved":       False,
     })
@@ -98,6 +112,8 @@ def settings_post(request: Request,
                   from_email:  str = Form(default="")):
     if not _cid(request):
         return RedirectResponse("/dashboard/login", status_code=302)
+    if _ctier(request) < 3:
+        return RedirectResponse("/dashboard/", status_code=302)
     models.save_email_settings(
         _cid(request),
         enabled     = (enabled == "on"),
@@ -109,6 +125,7 @@ def settings_post(request: Request,
     return templates.TemplateResponse(request, "dashboard/settings.html", {
         "settings":    models.get_email_settings(_cid(request)),
         "client_name": _cname(request),
+        "client_tier": 3,
         "active":      "settings",
         "saved":       True,
     })
@@ -118,8 +135,11 @@ def settings_post(request: Request,
 def email_logs(request: Request):
     if not _cid(request):
         return RedirectResponse("/dashboard/login", status_code=302)
+    if _ctier(request) < 3:
+        return RedirectResponse("/dashboard/", status_code=302)
     return templates.TemplateResponse(request, "dashboard/email_logs.html", {
         "logs":        models.get_email_logs(_cid(request)),
         "client_name": _cname(request),
+        "client_tier": 3,
         "active":      "emails",
     })
