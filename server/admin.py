@@ -18,16 +18,14 @@ def _guard(request: Request):
 def admin_login_get(request: Request):
     if request.session.get("is_admin"):
         return RedirectResponse("/admin/clients", status_code=302)
-    return templates.TemplateResponse("admin/login.html",
-                                      {"request": request, "error": None})
+    return templates.TemplateResponse(request, "admin/login.html", {"error": None})
 
 
 @router.post("/admin", response_class=HTMLResponse)
 def admin_login_post(request: Request, password: str = Form(...)):
     if not ADMIN_PASSWORD or password != ADMIN_PASSWORD:
-        return templates.TemplateResponse("admin/login.html",
-                                          {"request": request,
-                                           "error": "Mot de passe incorrect."})
+        return templates.TemplateResponse(request, "admin/login.html",
+                                          {"error": "Mot de passe incorrect."})
     request.session["is_admin"] = True
     return RedirectResponse("/admin/clients", status_code=302)
 
@@ -42,9 +40,8 @@ def admin_logout(request: Request):
 def admin_clients(request: Request):
     redir = _guard(request)
     if redir: return redir
-    return templates.TemplateResponse("admin/clients.html",
-                                      {"request": request,
-                                       "clients": models.get_all_clients()})
+    return templates.TemplateResponse(request, "admin/clients.html",
+                                      {"clients": models.get_all_clients()})
 
 
 @router.post("/admin/clients/{client_key}/tier")
@@ -61,13 +58,12 @@ def admin_set_tier(request: Request, client_key: str, tier: int = Form(...)):
 def admin_setup_get(request: Request, seeded: str = "", created: str = "", error: str = ""):
     redir = _guard(request)
     if redir: return redir
-    return templates.TemplateResponse("admin/setup.html", {
-        "request":        request,
-        "clients":        models.get_all_clients(),
+    return templates.TemplateResponse(request, "admin/setup.html", {
+        "clients":         models.get_all_clients(),
         "dashboard_users": models.get_dashboard_users(),
-        "seeded":         seeded,
-        "created":        created,
-        "error":          error,
+        "seeded":          seeded,
+        "created":         created,
+        "error":           error,
     })
 
 

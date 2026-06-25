@@ -20,8 +20,7 @@ def _cname(request: Request):
 def login_get(request: Request):
     if _cid(request):
         return RedirectResponse("/dashboard/", status_code=302)
-    return templates.TemplateResponse("dashboard/login.html",
-                                      {"request": request, "error": None})
+    return templates.TemplateResponse(request, "dashboard/login.html", {"error": None})
 
 
 @router.post("/dashboard/login", response_class=HTMLResponse)
@@ -30,9 +29,8 @@ def login_post(request: Request,
                password: str = Form(...)):
     user = auth.authenticate_dashboard_user(email, password)
     if not user:
-        return templates.TemplateResponse("dashboard/login.html",
-                                          {"request": request,
-                                           "error": "Email ou mot de passe incorrect."})
+        return templates.TemplateResponse(request, "dashboard/login.html",
+                                          {"error": "Email ou mot de passe incorrect."})
     with models.get_conn() as conn:
         row = conn.execute(
             "SELECT * FROM clients WHERE id = ?", (user["client_id"],)
@@ -53,8 +51,7 @@ def logout(request: Request):
 def visitors(request: Request, q: str = ""):
     if not _cid(request):
         return RedirectResponse("/dashboard/login", status_code=302)
-    return templates.TemplateResponse("dashboard/visitors.html", {
-        "request":     request,
+    return templates.TemplateResponse(request, "dashboard/visitors.html", {
         "visitors":    models.get_visitors(_cid(request), search=q),
         "search":      q,
         "client_name": _cname(request),
@@ -72,8 +69,7 @@ def visitor_detail(request: Request, visitor_id: int):
     conversations = models.get_conversations(visitor_id)
     for conv in conversations:
         conv["messages"] = models.get_messages(conv["id"])
-    return templates.TemplateResponse("dashboard/conversation.html", {
-        "request":       request,
+    return templates.TemplateResponse(request, "dashboard/conversation.html", {
         "visitor":       visitor,
         "conversations": conversations,
         "client_name":   _cname(request),
@@ -85,8 +81,7 @@ def visitor_detail(request: Request, visitor_id: int):
 def settings_get(request: Request):
     if not _cid(request):
         return RedirectResponse("/dashboard/login", status_code=302)
-    return templates.TemplateResponse("dashboard/settings.html", {
-        "request":     request,
+    return templates.TemplateResponse(request, "dashboard/settings.html", {
         "settings":    models.get_email_settings(_cid(request)),
         "client_name": _cname(request),
         "active":      "settings",
@@ -111,8 +106,7 @@ def settings_post(request: Request,
         from_name   = from_name.strip(),
         from_email  = from_email.strip(),
     )
-    return templates.TemplateResponse("dashboard/settings.html", {
-        "request":     request,
+    return templates.TemplateResponse(request, "dashboard/settings.html", {
         "settings":    models.get_email_settings(_cid(request)),
         "client_name": _cname(request),
         "active":      "settings",
@@ -124,8 +118,7 @@ def settings_post(request: Request,
 def email_logs(request: Request):
     if not _cid(request):
         return RedirectResponse("/dashboard/login", status_code=302)
-    return templates.TemplateResponse("dashboard/email_logs.html", {
-        "request":     request,
+    return templates.TemplateResponse(request, "dashboard/email_logs.html", {
         "logs":        models.get_email_logs(_cid(request)),
         "client_name": _cname(request),
         "active":      "emails",
