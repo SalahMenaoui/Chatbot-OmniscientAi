@@ -94,14 +94,16 @@ def admin_new_client(
 
 @router.post("/admin/setup/user")
 def admin_setup_user(
-    request:    Request,
-    client_key: str = Form(...),
-    email:      str = Form(...),
-    password:   str = Form(...),
+    request:   Request,
+    client_id: int = Form(...),
+    email:     str = Form(...),
+    password:  str = Form(...),
 ):
     redir = _guard(request)
     if redir: return redir
-    client = models.get_client_by_key(client_key)
+    with models.get_conn() as conn:
+        row = conn.execute("SELECT * FROM clients WHERE id = ?", (client_id,)).fetchone()
+    client = dict(row) if row else None
     if not client:
         return RedirectResponse("/admin/setup?error=Client+introuvable", status_code=302)
     try:
