@@ -8,8 +8,9 @@ import os
 import logging
 from fastapi import FastAPI, Request, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, HTMLResponse
 from fastapi.staticfiles import StaticFiles
+from fastapi.templating import Jinja2Templates
 from starlette.middleware.sessions import SessionMiddleware
 import anthropic
 from dotenv import load_dotenv
@@ -64,6 +65,12 @@ app.include_router(chatbot_router)
 app.include_router(capture_router)
 app.include_router(dashboard_router)
 app.include_router(admin_router)
+
+_landing_templates = Jinja2Templates(directory="templates")
+
+@app.get("/", response_class=HTMLResponse)
+def landing(request: Request):
+    return _landing_templates.TemplateResponse(request, "landing.html", {})
 
 
 @app.post("/api/chat")
