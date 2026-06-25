@@ -131,14 +131,29 @@ async def debug_env():
         bcrypt_ver = bcrypt.__version__
     except Exception:
         bcrypt_ver = "NOT INSTALLED"
+    admin_login = os.path.exists("templates/admin/login.html")
+    dash_login  = os.path.exists("templates/dashboard/login.html")
+    try:
+        from fastapi.templating import Jinja2Templates as J2T
+        t = J2T(directory="templates")
+        t.get_template("admin/login.html")
+        render_ok = True
+        render_err = None
+    except Exception as exc:
+        render_ok  = False
+        render_err = repr(exc)
     return {
         "cwd": cwd,
         "templates_relative_exists": tmpl_rel,
         "templates_abs_path": tmpl_abs,
+        "admin_login_html": admin_login,
+        "dashboard_login_html": dash_login,
         "jinja2": jinja2_ver,
         "itsdangerous": itsd_ver,
         "bcrypt": bcrypt_ver,
         "python": sys.version,
+        "template_render_ok": render_ok,
+        "template_render_err": render_err,
     }
 
 
