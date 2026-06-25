@@ -54,7 +54,7 @@ def admin_create_user(request: Request, client_key: str,
     if not client:
         return RedirectResponse("/admin/clients?error=Client+introuvable", status_code=302)
     try:
-        auth.create_dashboard_user(client["id"], email, password)
+        auth.create_dashboard_user(client_key, email, password)
     except Exception as e:
         msg = str(e).replace(" ", "+")
         return RedirectResponse(f"/admin/clients?error={msg}", status_code=302)
