@@ -102,11 +102,50 @@ def scrape_website(url: str) -> dict:
 # ── Instagram ──────────────────────────────────────────────────────────────────
 
 def scrape_instagram(url_or_handle: str) -> dict:
+    m        = re.search(r"instagram\.com/([^/?#]+)", url_or_handle)
+    username = m.group(1).strip("/") if m else url_or_handle.strip().strip("@/")
+
+    # Try lightweight HTML/meta approach first (GraphQL is now blocked by Meta)
+    try:
+        import urllib.request as _ur
+        req  = _ur.Request(
+            f"https://www.instagram.com/{username}/",
+            headers={
+                "User-Agent":      "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
+                "Accept":          "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+                "Accept-Language": "en-US,en;q=0.9",
+            },
+        )
+        html = _ur.urlopen(req, timeout=10).read().decode("utf-8", errors="ignore")
+
+        def _og(prop):
+            hit = re.search(rf'<meta\b[^>]+property=["\']og:{prop}["\'][^>]+content=["\']([^"\']+)["\']', html)
+            if not hit:
+                hit = re.search(rf'<meta\b[^>]+content=["\']([^"\']+)["\'][^>]+property=["\']og:{prop}["\']', html)
+            return hit.group(1) if hit else ""
+
+        title    = _og("title")   # "Pepsi Canada (@pepsicanada) • Instagram…"
+        desc     = _og("description")
+        pic_url  = _og("image")
+
+        name_m   = re.match(r"^(.+?)\s*\(@", title)
+        full_name = name_m.group(1).strip() if name_m else username
+
+        if title:
+            return {
+                "username":        username,
+                "full_name":       full_name,
+                "bio":             desc,
+                "followers":       0,
+                "profile_pic_url": pic_url,
+                "recent_posts":    [],
+            }
+    except Exception:
+        pass
+
+    # Fallback: instaloader (may also be blocked depending on Meta's policy)
     try:
         import instaloader
-        m        = re.search(r"instagram\.com/([^/?#]+)", url_or_handle)
-        username = m.group(1).strip("/") if m else url_or_handle.strip().strip("@")
-
         L = instaloader.Instaloader(
             download_pictures=False, download_videos=False,
             download_video_thumbnails=False, download_geotags=False,
@@ -114,15 +153,11 @@ def scrape_instagram(url_or_handle: str) -> dict:
             quiet=True, max_connection_attempts=1,
         )
         profile = instaloader.Profile.from_username(L.context, username)
-
-        posts = []
+        posts   = []
         for post in profile.get_posts():
             if len(posts) >= 15: break
-            posts.append({
-                "caption":  (post.caption or "")[:300],
-                "hashtags": list(post.caption_hashtags) if post.caption_hashtags else [],
-            })
-
+            posts.append({"caption": (post.caption or "")[:300],
+                          "hashtags": list(post.caption_hashtags) if post.caption_hashtags else []})
         return {
             "username":        username,
             "full_name":       profile.full_name or "",
@@ -132,7 +167,7 @@ def scrape_instagram(url_or_handle: str) -> dict:
             "recent_posts":    posts,
         }
     except Exception as e:
-        return {"error": str(e)}
+        return {"error": f"Instagram inaccessible (Meta bloque le scraping) : {str(e)[:120]}"}
 
 
 # ── Google Maps ────────────────────────────────────────────────────────────────
