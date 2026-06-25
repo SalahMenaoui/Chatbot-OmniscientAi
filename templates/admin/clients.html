@@ -52,7 +52,7 @@ tr:hover td{background:#1f1f1f}
 .dd{position:relative;display:inline-block}
 .dd-btn{background:#2c2c2c;border:1px solid #3a3a3a;color:#94a3b8;width:32px;height:32px;border-radius:8px;cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;line-height:1;padding-bottom:2px;transition:background .15s}
 .dd-btn:hover{background:#3a3a3a;color:#e2e8f0}
-.dd-menu{display:none;position:absolute;right:0;top:calc(100% + 6px);background:#1c1c1c;border:1px solid #2c2c2c;border-radius:10px;min-width:190px;padding:6px;z-index:999;box-shadow:0 8px 32px rgba(0,0,0,.5)}
+.dd-menu{display:none;position:fixed;background:#1c1c1c;border:1px solid #2c2c2c;border-radius:10px;min-width:190px;padding:6px;z-index:9999;box-shadow:0 8px 32px rgba(0,0,0,.5)}
 .dd-menu.open{display:block}
 .dd-menu a,.dd-menu button{display:flex;align-items:center;gap:8px;width:100%;padding:8px 10px;border-radius:7px;font-size:13px;font-weight:500;color:#cbd5e1;text-decoration:none;background:none;border:none;cursor:pointer;font-family:inherit;text-align:left}
 .dd-menu a:hover,.dd-menu button:hover{background:#2c2c2c;color:#f1f5f9}
@@ -230,9 +230,16 @@ tr:hover td{background:#1f1f1f}
 // ── Dropdown ─────────────────────────────────────────────────────
 function toggleDD(key) {
   var menu = document.getElementById('menu-' + key);
+  var btn  = document.querySelector('#dd-' + key + ' .dd-btn');
   var wasOpen = menu.classList.contains('open');
   closeAllDD();
-  if (!wasOpen) menu.classList.add('open');
+  if (!wasOpen) {
+    var r = btn.getBoundingClientRect();
+    menu.style.top   = (r.bottom + 6) + 'px';
+    menu.style.right = (window.innerWidth - r.right) + 'px';
+    menu.style.left  = 'auto';
+    menu.classList.add('open');
+  }
 }
 function closeDD(key) {
   document.getElementById('menu-' + key).classList.remove('open');
