@@ -18,6 +18,7 @@ from server import models
 from server.capture import router as capture_router
 from server.dashboard import router as dashboard_router
 from server.admin import router as admin_router
+from server.chatbot_routes import router as chatbot_router
 from server.email_worker import start_scheduler
 
 load_dotenv()
@@ -59,6 +60,7 @@ async def startup():
     start_scheduler()
 
 
+app.include_router(chatbot_router)
 app.include_router(capture_router)
 app.include_router(dashboard_router)
 app.include_router(admin_router)

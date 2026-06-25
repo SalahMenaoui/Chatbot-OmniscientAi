@@ -43,6 +43,7 @@
   .btn-confirm{flex:1;padding:9px;border-radius:8px;border:none;background:#dc4545;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit}
   .btn-confirm:hover{background:#b83535}
   .btn-cancel{padding:9px 16px;border-radius:8px;border:none;background:#2c2c2c;color:#94a3b8;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit}
+  .btn-config{background:#2c2c2c;color:#94a3b8;border:1px solid #3a3a3a;text-decoration:none}.btn-config:hover{background:#3a3a3a;color:#e2e8f0}
   .btn-code{background:#2c2c2c;color:#94a3b8;border:1px solid #3a3a3a}.btn-code:hover{background:#3a3a3a;color:#e2e8f0}
   .snippet{background:#111111;border:1px solid #2c2c2c;border-radius:8px;padding:12px 14px;font-family:monospace;font-size:12px;color:#e87070;word-break:break-all;margin-bottom:12px;line-height:1.6;user-select:all;cursor:text}
   .alert{max-width:900px;margin:0 auto 16px;padding:10px 14px;border-radius:8px;font-size:13px;font-weight:500}
@@ -109,6 +110,7 @@
             {% if c.tier >= 2 %}
             <button class="btn btn-access" onclick="openModal('{{ c.client_key }}', '{{ c.name }}')">+ Accès dashboard</button>
             {% endif %}
+            <a href="/admin/clients/{{ c.client_key }}/config" class="btn btn-config">⚙ Config</a>
             <button class="btn btn-code" onclick="openCode('{{ c.client_key }}', '{{ c.name }}')">⟨/⟩ Intégrer</button>
           </div>
         </td>

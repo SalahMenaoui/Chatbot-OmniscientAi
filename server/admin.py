@@ -101,12 +101,53 @@ def admin_new_client(
 ):
     redir = _guard(request)
     if redir: return redir
+    key = client_key.strip()
     try:
-        models.create_client(name.strip(), client_key.strip())
+        models.create_client(name.strip(), key)
     except Exception as e:
         msg = str(e).replace(" ", "+")
         return RedirectResponse(f"/admin/setup?error={msg}", status_code=302)
-    return RedirectResponse("/admin/setup?added=1", status_code=302)
+    return RedirectResponse(f"/admin/clients/{key}/config?added=1", status_code=302)
+
+
+@router.get("/admin/clients/{client_key}/config", response_class=HTMLResponse)
+def admin_config_get(request: Request, client_key: str, added: str = "", saved: str = ""):
+    redir = _guard(request)
+    if redir: return redir
+    client = models.get_client_by_key(client_key)
+    if not client:
+        return RedirectResponse("/admin/clients", status_code=302)
+    cfg = models.get_client_config(client_key)
+    return templates.TemplateResponse(request, "admin/client_config.html", {
+        "client": client, "cfg": cfg, "added": added, "saved": saved,
+    })
+
+
+@router.post("/admin/clients/{client_key}/config")
+def admin_config_post(
+    request:        Request,
+    client_key:     str,
+    bot_name:       str = Form(...),
+    system_prompt:  str = Form(...),
+    welcome_message:str = Form(...),
+    quick_replies:  str = Form(default=""),
+    color_header_bg:str = Form(default="#1a1a2e"),
+    color_primary:  str = Form(default="#6c63ff"),
+):
+    redir = _guard(request)
+    if redir: return redir
+    replies = [r.strip() for r in quick_replies.splitlines() if r.strip()]
+    cfg = {
+        "botName":        bot_name.strip(),
+        "systemPrompt":   system_prompt.strip(),
+        "welcomeMessage": welcome_message.strip(),
+        "quickReplies":   replies,
+        "colorHeaderBg":  color_header_bg.strip(),
+        "colorPrimary":   color_primary.strip(),
+        "proxyUrl":       "/api/chat",
+    }
+    models.save_client_config(client_key, cfg)
+    return RedirectResponse(f"/admin/clients/{client_key}/config?saved=1", status_code=302)
 
 
 @router.post("/admin/setup/user")

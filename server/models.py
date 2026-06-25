@@ -1,6 +1,17 @@
 import sqlite3
+import json
 import os
 from contextlib import contextmanager
+
+DEFAULT_CONFIG = {
+    "botName":        "Assistant",
+    "systemPrompt":   "Tu es un assistant utile et professionnel.",
+    "welcomeMessage": "Bonjour ! Comment puis-je vous aider ?",
+    "quickReplies":   [],
+    "colorHeaderBg":  "#1a1a2e",
+    "colorPrimary":   "#6c63ff",
+    "proxyUrl":       "/api/chat",
+}
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DB_PATH  = os.path.join(BASE_DIR, "data", "omniscient.db")
@@ -9,12 +20,17 @@ DB_PATH  = os.path.join(BASE_DIR, "data", "omniscient.db")
 def init_db():
     os.makedirs(os.path.dirname(DB_PATH), exist_ok=True)
     with get_conn() as conn:
+        # Migrate: add config column if missing (safe on existing DB)
+        cols = [r[1] for r in conn.execute("PRAGMA table_info(clients)").fetchall()]
+        if "config" not in cols:
+            conn.execute("ALTER TABLE clients ADD COLUMN config TEXT")
         conn.executescript("""
             CREATE TABLE IF NOT EXISTS clients (
                 id         INTEGER PRIMARY KEY AUTOINCREMENT,
                 name       TEXT    NOT NULL,
                 client_key TEXT    UNIQUE NOT NULL,
                 tier       INTEGER NOT NULL DEFAULT 1,
+                config     TEXT,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             );
 
@@ -253,6 +269,28 @@ def get_all_clients():
     with get_conn() as conn:
         rows = conn.execute("SELECT * FROM clients ORDER BY name").fetchall()
         return [dict(r) for r in rows]
+
+
+def get_client_config(client_key: str) -> dict:
+    client = get_client_by_key(client_key)
+    if not client:
+        return {}
+    stored = {}
+    if client.get("config"):
+        try:
+            stored = json.loads(client["config"])
+        except Exception:
+            pass
+    cfg = {**DEFAULT_CONFIG, **stored, "clientId": client_key}
+    return cfg
+
+
+def save_client_config(client_key: str, config: dict):
+    with get_conn() as conn:
+        conn.execute(
+            "UPDATE clients SET config = ? WHERE client_key = ?",
+            (json.dumps(config), client_key),
+        )
 
 
 def set_client_tier(client_key: str, tier: int):
