@@ -1,4 +1,5 @@
 {
+  "clientId": "aqua_services",
   "botName": "Aqua Services",
   "welcomeMessage": "Bonjour ! Je suis l'assistant virtuel de Aqua Services. Comment puis-je vous aider ?",
   "placeholder": "Votre message...",

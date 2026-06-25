@@ -2,3 +2,9 @@ anthropic
 fastapi
 uvicorn[standard]
 python-dotenv
+bcrypt
+apscheduler
+resend
+python-multipart
+jinja2
+itsdangerous

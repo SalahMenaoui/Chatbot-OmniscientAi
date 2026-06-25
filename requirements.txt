@@ -5,3 +5,9 @@ python-dotenv
 requests
 beautifulsoup4
 Pillow
+bcrypt
+apscheduler
+resend
+python-multipart
+jinja2
+itsdangerous

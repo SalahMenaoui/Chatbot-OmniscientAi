@@ -1,0 +1,40 @@
+{% extends "dashboard/base.html" %}
+{% block title %}Emails envoyés{% endblock %}
+{% block content %}
+<div class="page-header">
+  <h2>Emails envoyés</h2>
+  <p>Historique des relances automatiques</p>
+</div>
+
+<div class="card">
+  {% if logs %}
+  <table>
+    <thead>
+      <tr>
+        <th>Visiteur</th>
+        <th>Email</th>
+        <th>Sujet</th>
+        <th>Statut</th>
+        <th>Envoyé le</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for log in logs %}
+      <tr>
+        <td><strong>{{ log.visitor_name }}</strong></td>
+        <td>{{ log.visitor_email }}</td>
+        <td style="max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ log.subject or '—' }}</td>
+        <td><span class="badge {{ 'badge-green' if log.status == 'sent' else 'badge-red' }}">{{ log.status }}</span></td>
+        <td>{{ log.sent_at[:16] }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <div class="empty">
+    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 0 0 2.22 0L21 8M5 19h14a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2z"/></svg>
+    <p>Aucun email envoyé pour l'instant.</p>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

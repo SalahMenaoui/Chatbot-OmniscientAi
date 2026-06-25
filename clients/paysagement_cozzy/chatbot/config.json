@@ -1,4 +1,5 @@
 {
+  "clientId": "paysagement_cozzy",
   "botName": "Paysagement Cozzy",
   "welcomeMessage": "Bonjour ! Je suis l'assistant virtuel de Paysagement Cozzy. Comment puis-je vous aider ?",
   "placeholder": "Votre message...",

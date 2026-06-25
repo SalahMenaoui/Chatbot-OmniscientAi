@@ -1,4 +1,5 @@
 {
+  "clientId": "vetlife",
   "botName": "Vetlife",
   "welcomeMessage": "Bonjour ! Je suis l assistant virtuel de Vetlife. Comment puis-je vous aider ?",
   "placeholder": "Votre message...",

@@ -1,0 +1,32 @@
+{% extends "dashboard/base.html" %}
+{% block title %}{{ visitor.name }}{% endblock %}
+{% block content %}
+<div class="page-header">
+  <a href="/dashboard/" style="font-size:13px;color:#6366f1;text-decoration:none;display:inline-block;margin-bottom:8px;">← Retour aux visiteurs</a>
+  <h2>{{ visitor.name }}</h2>
+  <p>{{ visitor.email }} · Capturé le {{ visitor.created_at[:16] }}</p>
+</div>
+
+{% for conv in conversations %}
+<div class="card" style="margin-bottom:16px;">
+  <div class="card-header">
+    <h3>Conversation du {{ conv.started_at[:16] }}</h3>
+    <span class="badge badge-gray">{{ conv.message_count }} messages</span>
+  </div>
+  <div style="padding:16px 20px;">
+    {% if conv.messages %}
+      {% for msg in conv.messages %}
+      <div style="display:flex;flex-direction:{{ 'row-reverse' if msg.role == 'user' else 'row' }};margin-bottom:10px;align-items:flex-end;gap:8px;">
+        <div style="max-width:72%;padding:9px 13px;border-radius:{{ '14px 14px 4px 14px' if msg.role == 'user' else '14px 14px 14px 4px' }};background:{{ '#6366f1' if msg.role == 'user' else '#f1f5f9' }};color:{{ '#fff' if msg.role == 'user' else '#1e293b' }};font-size:13px;line-height:1.55;white-space:pre-wrap;word-break:break-word;">{{ msg.content }}</div>
+        <div style="font-size:10px;color:#94a3b8;flex-shrink:0;">{{ msg.timestamp[11:16] if msg.timestamp else '' }}</div>
+      </div>
+      {% endfor %}
+    {% else %}
+      <p style="color:#94a3b8;font-size:13px;padding:8px 0;">Aucun message enregistré.</p>
+    {% endif %}
+  </div>
+</div>
+{% else %}
+<div class="card"><div class="empty"><p>Aucune conversation.</p></div></div>
+{% endfor %}
+{% endblock %}

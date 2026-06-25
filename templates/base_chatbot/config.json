@@ -1,4 +1,5 @@
 {
+  "clientId": null,
   "botName": "Assistant",
   "welcomeMessage": "Hi! How can I help you today?",
   "placeholder": "Your message…",

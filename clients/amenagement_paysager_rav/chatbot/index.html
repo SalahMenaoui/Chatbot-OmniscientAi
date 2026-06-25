@@ -32,6 +32,18 @@
       </div>
     </div>
 
+    <!-- Capture overlay: shown for Tier 2+ on first visit -->
+    <div id="capture-overlay" hidden>
+      <form id="capture-form" novalidate>
+        <p id="capture-title">Avant de commencer</p>
+        <p id="capture-subtitle">Entrez vos coordonnées pour démarrer la conversation.</p>
+        <input type="text"  id="capture-name"  placeholder="Votre nom"   autocomplete="name">
+        <input type="email" id="capture-email" placeholder="Votre email"  autocomplete="email">
+        <button type="submit" id="capture-btn">Commencer →</button>
+        <p id="capture-error" hidden></p>
+      </form>
+    </div>
+
     <div id="chat-messages" role="log" aria-live="polite"></div>
 
     <div id="typing-indicator" hidden>

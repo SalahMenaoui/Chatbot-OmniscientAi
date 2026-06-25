@@ -11,6 +11,9 @@ clients/*/qa_results.md
 clients/*/assets/
 clients/*/sources.txt
 
+# Base de données SQLite (persistée via Railway Volume en prod)
+data/
+
 # Fichiers temporaires
 .tmp/
 __pycache__/

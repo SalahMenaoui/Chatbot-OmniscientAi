@@ -1,4 +1,5 @@
 {
+  "clientId": "plombier_expert_terrebonne",
   "botName": "Plombier Expert",
   "welcomeMessage": "Bonjour ! 👋 Je suis l'assistant de Plombier Expert. Que ce soit pour une urgence, un devis ou une question, je suis là pour vous aider rapidement. Comment puis-je vous assister ?",
   "placeholder": "Votre message…",

@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>{% block title %}Dashboard{% endblock %} — Omniscient AI</title>
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f8fafc;color:#1e293b;min-height:100vh;display:flex}
+
+  /* ── Sidebar ─────────────────────────────── */
+  .sidebar{width:220px;min-height:100vh;background:#0f172a;color:#94a3b8;display:flex;flex-direction:column;flex-shrink:0;position:fixed;top:0;left:0;bottom:0}
+  .sidebar-brand{padding:20px 20px 16px;border-bottom:1px solid #1e293b}
+  .sidebar-brand h1{font-size:13px;font-weight:700;color:#fff;letter-spacing:.06em;text-transform:uppercase}
+  .sidebar-brand p{font-size:12px;color:#475569;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .sidebar nav{padding:12px 10px;flex:1}
+  .sidebar nav a{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:8px;text-decoration:none;color:#94a3b8;font-size:13px;font-weight:500;margin-bottom:2px;transition:background .15s,color .15s}
+  .sidebar nav a:hover{background:#1e293b;color:#e2e8f0}
+  .sidebar nav a.active{background:#1d4ed8;color:#fff}
+  .sidebar nav a svg{width:15px;height:15px;flex-shrink:0}
+  .sidebar-footer{padding:12px 10px;border-top:1px solid #1e293b}
+  .sidebar-footer a{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:8px;text-decoration:none;color:#64748b;font-size:13px;font-weight:500;transition:background .15s,color .15s}
+  .sidebar-footer a:hover{background:#1e293b;color:#e2e8f0}
+  .sidebar-footer a svg{width:15px;height:15px}
+
+  /* ── Main ────────────────────────────────── */
+  .main{margin-left:220px;flex:1;padding:32px;min-height:100vh}
+  .page-header{margin-bottom:24px}
+  .page-header h2{font-size:21px;font-weight:700;color:#0f172a}
+  .page-header p{color:#64748b;font-size:13px;margin-top:4px}
+
+  /* ── Card ────────────────────────────────── */
+  .card{background:#fff;border-radius:12px;border:1px solid #e2e8f0;overflow:hidden}
+  .card-header{padding:14px 20px;border-bottom:1px solid #f1f5f9;display:flex;align-items:center;justify-content:space-between}
+  .card-header h3{font-size:14px;font-weight:600;color:#0f172a}
+  .card-body{padding:20px}
+
+  /* ── Table ───────────────────────────────── */
+  table{width:100%;border-collapse:collapse}
+  th{text-align:left;padding:10px 16px;font-size:11px;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:.05em;background:#f8fafc;border-bottom:1px solid #e2e8f0}
+  td{padding:12px 16px;font-size:13px;color:#374151;border-bottom:1px solid #f1f5f9;vertical-align:middle}
+  tr:last-child td{border-bottom:none}
+  tr:hover td{background:#fafafa}
+
+  /* ── Badge ───────────────────────────────── */
+  .badge{display:inline-flex;align-items:center;padding:2px 8px;border-radius:999px;font-size:11px;font-weight:600}
+  .badge-green{background:#dcfce7;color:#166534}
+  .badge-gray {background:#f1f5f9;color:#64748b}
+  .badge-red  {background:#fee2e2;color:#991b1b}
+  .badge-blue {background:#dbeafe;color:#1d4ed8}
+
+  /* ── Form ────────────────────────────────── */
+  .form-group{margin-bottom:16px}
+  label{display:block;font-size:13px;font-weight:600;color:#374151;margin-bottom:6px}
+  input[type=text],input[type=email],input[type=number],input[type=password],select,textarea{width:100%;padding:9px 12px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:14px;color:#1e293b;background:#fff;outline:none;transition:border-color .15s,box-shadow .15s;font-family:inherit}
+  input:focus,select:focus,textarea:focus{border-color:#6366f1;box-shadow:0 0 0 3px rgba(99,102,241,.12)}
+  .btn{display:inline-flex;align-items:center;gap:6px;padding:9px 16px;border-radius:8px;border:none;font-size:13px;font-weight:600;cursor:pointer;text-decoration:none;transition:background .15s,transform .1s;font-family:inherit}
+  .btn:active{transform:scale(.98)}
+  .btn-primary{background:#6366f1;color:#fff}
+  .btn-primary:hover{background:#4f46e5}
+  .btn-sm{padding:5px 10px;font-size:12px}
+  .btn-ghost{background:transparent;color:#64748b;border:1.5px solid #e2e8f0}
+  .btn-ghost:hover{background:#f8fafc}
+
+  /* ── Search ──────────────────────────────── */
+  .search-bar{display:flex;gap:8px;margin-bottom:16px}
+  .search-bar input{flex:1;max-width:360px}
+
+  /* ── Alert ───────────────────────────────── */
+  .alert{padding:10px 14px;border-radius:8px;font-size:13px;margin-bottom:16px}
+  .alert-success{background:#dcfce7;color:#166534;border:1px solid #bbf7d0}
+
+  /* ── Toggle ──────────────────────────────── */
+  .toggle-wrap{display:flex;align-items:center;gap:10px}
+  .toggle{appearance:none;width:40px;height:22px;background:#cbd5e1;border-radius:999px;cursor:pointer;position:relative;transition:background .2s;flex-shrink:0}
+  .toggle::before{content:'';position:absolute;width:18px;height:18px;border-radius:50%;background:#fff;top:2px;left:2px;transition:transform .2s;box-shadow:0 1px 3px rgba(0,0,0,.2)}
+  .toggle:checked{background:#6366f1}
+  .toggle:checked::before{transform:translateX(18px)}
+  .toggle-label{font-size:13px;color:#374151;font-weight:500}
+
+  /* ── Empty ───────────────────────────────── */
+  .empty{padding:48px 24px;text-align:center;color:#94a3b8}
+  .empty svg{width:36px;height:36px;margin:0 auto 12px;display:block;opacity:.4}
+  .empty p{font-size:13px}
+</style>
+</head>
+<body>
+<aside class="sidebar">
+  <div class="sidebar-brand">
+    <h1>Omniscient AI</h1>
+    <p>{{ client_name }}</p>
+  </div>
+  <nav>
+    <a href="/dashboard/" class="{{ 'active' if active == 'visitors' else '' }}">
+      <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      Visiteurs
+    </a>
+    <a href="/dashboard/emails" class="{{ 'active' if active == 'emails' else '' }}">
+      <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+      Emails envoyés
+    </a>
+    <a href="/dashboard/settings" class="{{ 'active' if active == 'settings' else '' }}">
+      <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 19.07a10 10 0 0 1 0-14.14"/></svg>
+      Paramètres email
+    </a>
+  </nav>
+  <div class="sidebar-footer">
+    <a href="/dashboard/logout">
+      <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+      Déconnexion
+    </a>
+  </div>
+</aside>
+<main class="main">
+  {% block content %}{% endblock %}
+</main>
+</body>
+</html>

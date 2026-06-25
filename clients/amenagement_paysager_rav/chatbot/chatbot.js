@@ -3,6 +3,7 @@
  *
  * Loads config.json, applies full theme via CSS variables,
  * renders markdown, shows typing indicator, proxies to Claude API.
+ * Supports optional visitor capture (Tier 2+) and conversation logging.
  *
  * SECURITY: API key is NEVER in client JS — all calls go to /api/chat (server-side proxy).
  */
@@ -21,6 +22,7 @@
   }
 
   const {
+    clientId       = null,
     botName        = "Assistant",
     welcomeMessage = "Hi! How can I help you today?",
     placeholder    = "Type your message...",
@@ -123,6 +125,10 @@
   const history = [];
   let waiting   = false;
 
+  // ── Capture state ────────────────────────────────────────────────
+  const serverBase     = (() => { try { return new URL(proxyUrl).origin; } catch { return window.location.origin; } })();
+  let   conversationId = null;
+
   // ── DOM refs ─────────────────────────────────────────────────────
   const messagesEl      = document.getElementById("chat-messages");
   const inputEl         = document.getElementById("chat-input");
@@ -208,6 +214,7 @@
           max_tokens: maxTokens,
           system:     systemPrompt,
           messages:   history,
+          ...(conversationId != null ? { conversation_id: conversationId } : {}),
         }),
       });
 
@@ -238,25 +245,68 @@
     }
   });
 
-  // ── Quick replies ─────────────────────────────────────────────────
-  const quickEl = document.getElementById("quick-replies");
-  if (quickEl && quickReplies.length) {
-    quickReplies.forEach(label => {
-      const btn = document.createElement("button");
-      btn.className = "quick-reply-btn";
-      btn.textContent = label;
-      btn.addEventListener("click", () => {
-        quickEl.hidden = true;
-        inputEl.value = label;
-        sendMessage();
-      });
-      quickEl.appendChild(btn);
-    });
-    quickEl.hidden = false;
-  }
+  // ── Capture ───────────────────────────────────────────────────────
+  async function initCapture() {
+    if (!clientId || !serverBase) return;
 
-  // ── Welcome message ───────────────────────────────────────────────
-  renderMessage("bot", welcomeMessage);
+    const SK = `omni_${clientId}`;
+    const stored = (() => { try { return JSON.parse(sessionStorage.getItem(SK)); } catch { return null; } })();
+    if (stored?.conversationId) { conversationId = stored.conversationId; return; }
+
+    const overlay = document.getElementById("capture-overlay");
+    if (!overlay) return;
+
+    overlay.hidden = false;
+
+    let tier = 1;
+    try {
+      const r = await fetch(`${serverBase}/api/client-config/${encodeURIComponent(clientId)}`);
+      if (r.ok) tier = (await r.json()).tier ?? 1;
+    } catch {}
+
+    if (tier < 2) { overlay.hidden = true; return; }
+
+    await new Promise((resolve) => {
+      const form  = document.getElementById("capture-form");
+      const errEl = document.getElementById("capture-error");
+      const btn   = document.getElementById("capture-btn");
+
+      form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const name  = document.getElementById("capture-name").value.trim();
+        const email = document.getElementById("capture-email").value.trim();
+
+        if (!name || !email) {
+          errEl.textContent = "Veuillez remplir tous les champs.";
+          errEl.hidden = false;
+          return;
+        }
+
+        btn.disabled    = true;
+        btn.textContent = "…";
+        errEl.hidden    = true;
+
+        try {
+          const res = await fetch(`${serverBase}/api/capture`, {
+            method:  "POST",
+            headers: { "Content-Type": "application/json" },
+            body:    JSON.stringify({ client_key: clientId, name, email }),
+          });
+          if (!res.ok) throw new Error(`HTTP ${res.status}`);
+          const data     = await res.json();
+          conversationId = data.conversation_id;
+          sessionStorage.setItem(SK, JSON.stringify({ conversationId }));
+          overlay.hidden = true;
+          resolve();
+        } catch {
+          btn.disabled    = false;
+          btn.textContent = "Commencer →";
+          errEl.textContent = "Une erreur est survenue. Réessayez.";
+          errEl.hidden = false;
+        }
+      });
+    });
+  }
 
   // ── Widget: draggable button + resizable panel ───────────────────
   (function setupWidget() {
@@ -417,6 +467,29 @@
     // ── Init + window resize ──────────────────────────────────────
     applyBtn(); applySize();
     window.addEventListener("resize", () => { applyBtn(); if (document.body.classList.contains("panel-open")) { applySize(); positionPanel(); } });
+  })();
+
+  // ── Async init: capture form → then show chat ─────────────────────
+  (async () => {
+    await initCapture();
+
+    const quickEl = document.getElementById("quick-replies");
+    if (quickEl && quickReplies.length) {
+      quickReplies.forEach(label => {
+        const btn = document.createElement("button");
+        btn.className = "quick-reply-btn";
+        btn.textContent = label;
+        btn.addEventListener("click", () => {
+          quickEl.hidden = true;
+          inputEl.value = label;
+          sendMessage();
+        });
+        quickEl.appendChild(btn);
+      });
+      quickEl.hidden = false;
+    }
+
+    renderMessage("bot", welcomeMessage);
   })();
 
 })();

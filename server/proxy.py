@@ -1,17 +1,7 @@
 """
-proxy.py
-Server-side API proxy for all chatbot widgets.
-Receives requests from client browsers and forwards them to the Anthropic API.
-The API key never leaves this server.
-
-Deploy once — all client chatbots point to this single endpoint.
-
-Usage (local):
-    pip install -r requirements.txt
-    uvicorn proxy:app --host 0.0.0.0 --port 8080
-
-Production: deploy to Railway, Render, or any VPS.
-Set ANTHROPIC_API_KEY as an environment variable on the host.
+proxy.py — Central API proxy + server entrypoint.
+Forwards chat requests to Anthropic, logs messages for Tier 2+ clients,
+and mounts the dashboard, admin, and capture routers.
 """
 
 import os
@@ -20,20 +10,33 @@ from fastapi import FastAPI, Request, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
+from starlette.middleware.sessions import SessionMiddleware
 import anthropic
 from dotenv import load_dotenv
+
+from server import models
+from server.capture import router as capture_router
+from server.dashboard import router as dashboard_router
+from server.admin import router as admin_router
+from server.email_worker import start_scheduler
 
 load_dotenv()
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
 log = logging.getLogger(__name__)
 
+models.init_db()
+
 app = FastAPI(title="Chatbot Proxy")
 
 app.add_middleware(
+    SessionMiddleware,
+    secret_key=os.environ.get("SECRET_KEY", "change-me-in-production"),
+)
+app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
-    allow_methods=["POST", "OPTIONS"],
+    allow_methods=["GET", "POST", "OPTIONS"],
     allow_headers=["Content-Type"],
 )
 
@@ -47,8 +50,18 @@ ALLOWED_MODELS = {
     "claude-haiku-4-5-20251001",
     "claude-sonnet-4-6",
 }
-DEFAULT_MODEL   = "claude-haiku-4-5-20251001"
-MAX_TOKENS_CAP  = 2048
+DEFAULT_MODEL  = "claude-haiku-4-5-20251001"
+MAX_TOKENS_CAP = 2048
+
+
+@app.on_event("startup")
+async def startup():
+    start_scheduler()
+
+
+app.include_router(capture_router)
+app.include_router(dashboard_router)
+app.include_router(admin_router)
 
 
 @app.post("/api/chat")
@@ -58,10 +71,11 @@ async def chat(request: Request):
     except Exception:
         raise HTTPException(status_code=400, detail="Invalid JSON body.")
 
-    model      = body.get("model", DEFAULT_MODEL)
-    max_tokens = min(int(body.get("max_tokens", 1024)), MAX_TOKENS_CAP)
-    system     = body.get("system", "")
-    messages   = body.get("messages", [])
+    model           = body.get("model", DEFAULT_MODEL)
+    max_tokens      = min(int(body.get("max_tokens", 1024)), MAX_TOKENS_CAP)
+    system          = body.get("system", "")
+    messages        = body.get("messages", [])
+    conversation_id = body.get("conversation_id")
 
     if model not in ALLOWED_MODELS:
         model = DEFAULT_MODEL
@@ -78,6 +92,16 @@ async def chat(request: Request):
         messages=messages,
     )
 
+    reply = response.content[0].text if response.content else ""
+
+    if conversation_id:
+        try:
+            user_content = messages[-1].get("content", "") if messages else ""
+            models.log_message(int(conversation_id), "user",      user_content)
+            models.log_message(int(conversation_id), "assistant", reply)
+        except Exception as e:
+            log.warning("Message logging failed: %s", e)
+
     return JSONResponse(content=response.model_dump())
 
 
@@ -86,7 +110,6 @@ async def health():
     return {"status": "ok"}
 
 
-# Serve chatbot widget files — must be mounted last
 clients_dir = os.path.join(os.path.dirname(__file__), "..", "clients")
 if os.path.isdir(clients_dir):
     app.mount("/clients", StaticFiles(directory=clients_dir), name="clients")

@@ -1,0 +1,48 @@
+{% extends "dashboard/base.html" %}
+{% block title %}Visiteurs{% endblock %}
+{% block content %}
+<div class="page-header">
+  <h2>Visiteurs</h2>
+  <p>Tous les visiteurs ayant chatté sur votre site</p>
+</div>
+
+<form class="search-bar" method="get">
+  <input type="text" name="q" value="{{ search }}" placeholder="Rechercher par nom ou email…">
+  <button type="submit" class="btn btn-primary">Rechercher</button>
+  {% if search %}<a href="/dashboard/" class="btn btn-ghost">Effacer</a>{% endif %}
+</form>
+
+<div class="card">
+  {% if visitors %}
+  <table>
+    <thead>
+      <tr>
+        <th>Nom</th>
+        <th>Email</th>
+        <th>Messages</th>
+        <th>Dernière activité</th>
+        <th>Capturé le</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for v in visitors %}
+      <tr>
+        <td><strong>{{ v.name }}</strong></td>
+        <td>{{ v.email }}</td>
+        <td><span class="badge badge-blue">{{ v.message_count or 0 }}</span></td>
+        <td>{{ v.last_seen[:16] if v.last_seen else '—' }}</td>
+        <td>{{ v.created_at[:16] }}</td>
+        <td><a href="/dashboard/visitor/{{ v.id }}" class="btn btn-ghost btn-sm">Voir →</a></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <div class="empty">
+    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2M9 7a4 4 0 1 0 0-8 4 4 0 0 0 0 8z"/></svg>
+    <p>{% if search %}Aucun résultat pour « {{ search }} ».{% else %}Aucun visiteur pour l'instant.{% endif %}</p>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

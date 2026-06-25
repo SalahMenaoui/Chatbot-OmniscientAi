@@ -1,4 +1,5 @@
 {
+  "clientId": "amenagement_paysager_rav",
   "botName": "Aménagement Paysager AV",
   "welcomeMessage": "Bonjour ! 👋 Bienvenue chez Aménagement Paysager AV. Je suis là pour répondre à vos questions sur nos services d'aménagement paysager. Comment puis-je vous aider aujourd'hui ?",
   "placeholder": "Écrivez votre message...",
