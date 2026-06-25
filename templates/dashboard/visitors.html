@@ -95,8 +95,8 @@
         <td><strong>{{ v.name }}</strong></td>
         <td>{{ v.email }}</td>
         <td><span class="badge badge-blue">{{ v.message_count or 0 }}</span></td>
-        <td>{{ v.last_seen[:16] if v.last_seen else '—' }}</td>
-        <td>{{ v.created_at[:16] }}</td>
+        <td>{{ v.last_seen | localdt }}</td>
+        <td>{{ v.created_at | localdt }}</td>
         <td><a href="/dashboard/visitor/{{ v.id }}" class="btn btn-ghost btn-sm">Voir →</a></td>
       </tr>
       {% endfor %}

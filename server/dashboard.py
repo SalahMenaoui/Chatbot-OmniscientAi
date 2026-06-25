@@ -1,6 +1,8 @@
 import os
 import csv
 import io
+from datetime import datetime, timezone
+from zoneinfo import ZoneInfo
 from fastapi import APIRouter, Request, Form
 from fastapi.responses import HTMLResponse, RedirectResponse, StreamingResponse
 from fastapi.templating import Jinja2Templates
@@ -8,6 +10,33 @@ from server import models, auth
 
 templates = Jinja2Templates(directory="templates")
 router    = APIRouter()
+
+_TZ = ZoneInfo(os.environ.get("TZ_NAME", "America/Toronto"))
+_MONTHS_FR = ["jan","fév","mar","avr","mai","juin","juil","aoû","sep","oct","nov","déc"]
+
+def _localdt(utc_str):
+    """Convert UTC datetime string to local time, formatted in French."""
+    if not utc_str:
+        return "—"
+    try:
+        dt_utc   = datetime.strptime(str(utc_str)[:19], "%Y-%m-%d %H:%M:%S").replace(tzinfo=timezone.utc)
+        dt       = dt_utc.astimezone(_TZ)
+        now      = datetime.now(_TZ)
+        diff     = now - dt
+        if diff.total_seconds() < 3600:
+            mins = int(diff.total_seconds() / 60)
+            return f"il y a {mins} min" if mins > 1 else "à l'instant"
+        if diff.total_seconds() < 86400:
+            hrs = int(diff.total_seconds() / 3600)
+            return f"il y a {hrs}h"
+        month = _MONTHS_FR[dt.month - 1]
+        if dt.year == now.year:
+            return f"{dt.day} {month} à {dt.hour:02d}h{dt.minute:02d}"
+        return f"{dt.day} {month} {dt.year} à {dt.hour:02d}h{dt.minute:02d}"
+    except Exception:
+        return str(utc_str)[:16]
+
+templates.env.filters["localdt"] = _localdt
 
 
 def _cid(request: Request):
