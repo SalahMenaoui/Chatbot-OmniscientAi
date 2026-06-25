@@ -37,11 +37,28 @@ def admin_logout(request: Request):
 
 
 @router.get("/admin/clients", response_class=HTMLResponse)
-def admin_clients(request: Request):
+def admin_clients(request: Request, created: str = "", error: str = ""):
     redir = _guard(request)
     if redir: return redir
     return templates.TemplateResponse(request, "admin/clients.html",
-                                      {"clients": models.get_all_clients()})
+                                      {"clients": models.get_all_clients(),
+                                       "created": created, "error": error})
+
+
+@router.post("/admin/clients/{client_key}/create-user")
+def admin_create_user(request: Request, client_key: str,
+                      email: str = Form(...), password: str = Form(...)):
+    redir = _guard(request)
+    if redir: return redir
+    client = models.get_client_by_key(client_key)
+    if not client:
+        return RedirectResponse("/admin/clients?error=Client+introuvable", status_code=302)
+    try:
+        auth.create_dashboard_user(client["id"], email, password)
+    except Exception as e:
+        msg = str(e).replace(" ", "+")
+        return RedirectResponse(f"/admin/clients?error={msg}", status_code=302)
+    return RedirectResponse("/admin/clients?created=1", status_code=302)
 
 
 @router.post("/admin/clients/{client_key}/tier")
