@@ -1,17 +1,81 @@
 {% extends "dashboard/base.html" %}
 {% block title %}Visiteurs{% endblock %}
 {% block content %}
-<div class="page-header">
-  <h2>Visiteurs</h2>
-  <p>Tous les visiteurs ayant chatté sur votre site</p>
+
+<style>
+  .stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:24px}
+  .stat-card{background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:20px 24px}
+  .stat-card .label{font-size:11px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px}
+  .stat-card .value{font-size:32px;font-weight:800;color:#111111;line-height:1}
+  .stat-card .sub{font-size:12px;color:#94a3b8;margin-top:4px}
+  .stat-card.red .value{color:#dc4545}
+
+  .toolbar{display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap}
+  .toolbar .search-wrap{flex:1;min-width:200px;max-width:300px}
+  .toolbar .search-wrap input{width:100%;padding:8px 12px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:13px;color:#1c1c1c;background:#fff;outline:none;font-family:inherit}
+  .toolbar .search-wrap input:focus{border-color:#dc4545}
+
+  .period-tabs{display:flex;gap:4px;background:#f1f5f9;padding:4px;border-radius:8px}
+  .period-tabs a{padding:5px 12px;border-radius:6px;font-size:12px;font-weight:600;color:#64748b;text-decoration:none;transition:background .15s,color .15s}
+  .period-tabs a:hover{color:#111111}
+  .period-tabs a.active{background:#fff;color:#dc4545;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+
+  .btn-export{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;background:#111111;color:#fff;border-radius:8px;font-size:12px;font-weight:700;text-decoration:none;white-space:nowrap}
+  .btn-export:hover{background:#333}
+
+  .chart-card{background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:20px 24px;margin-bottom:24px}
+  .chart-card h3{font-size:13px;font-weight:700;color:#111111;margin-bottom:16px}
+  .chart-wrap{height:160px;position:relative}
+</style>
+
+<!-- Stats cards -->
+<div class="stats-grid">
+  <div class="stat-card red">
+    <div class="label">Leads capturés</div>
+    <div class="value">{{ stats.leads }}</div>
+    <div class="sub">{{ period_label }}</div>
+  </div>
+  <div class="stat-card">
+    <div class="label">Conversations</div>
+    <div class="value">{{ stats.conversations }}</div>
+    <div class="sub">{{ period_label }}</div>
+  </div>
+  <div class="stat-card">
+    <div class="label">Messages échangés</div>
+    <div class="value">{{ stats.messages }}</div>
+    <div class="sub">Total</div>
+  </div>
 </div>
 
-<form class="search-bar" method="get">
-  <input type="text" name="q" value="{{ search }}" placeholder="Rechercher par nom ou email…">
-  <button type="submit" class="btn btn-primary">Rechercher</button>
-  {% if search %}<a href="/dashboard/" class="btn btn-ghost">Effacer</a>{% endif %}
+<!-- Chart -->
+<div class="chart-card">
+  <h3>Activité — 30 derniers jours</h3>
+  <div class="chart-wrap">
+    <canvas id="activity-chart"></canvas>
+  </div>
+</div>
+
+<!-- Toolbar -->
+<form class="toolbar" method="get" id="filter-form">
+  <input type="hidden" name="period" value="{{ period }}">
+  <div class="search-wrap">
+    <input type="text" name="q" value="{{ search }}" placeholder="Rechercher nom ou email…">
+  </div>
+  <div class="period-tabs">
+    <a href="?period=&q={{ search }}" class="{{ 'active' if not period }}">Tout</a>
+    <a href="?period=1h&q={{ search }}" class="{{ 'active' if period == '1h' }}">1h</a>
+    <a href="?period=24h&q={{ search }}" class="{{ 'active' if period == '24h' }}">24h</a>
+    <a href="?period=7d&q={{ search }}" class="{{ 'active' if period == '7d' }}">7 jours</a>
+    <a href="?period=30d&q={{ search }}" class="{{ 'active' if period == '30d' }}">30 jours</a>
+  </div>
+  <button type="submit" class="btn btn-primary btn-sm">Rechercher</button>
+  {% if search %}<a href="?period={{ period }}" class="btn btn-ghost btn-sm">Effacer</a>{% endif %}
+  <a href="/dashboard/export.csv?period={{ period }}&q={{ search }}" class="btn-export">
+    ↓ Exporter CSV
+  </a>
 </form>
 
+<!-- Table -->
 <div class="card">
   {% if visitors %}
   <table>
@@ -41,8 +105,55 @@
   {% else %}
   <div class="empty">
     <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2M9 7a4 4 0 1 0 0-8 4 4 0 0 0 0 8z"/></svg>
-    <p>{% if search %}Aucun résultat pour « {{ search }} ».{% else %}Aucun visiteur pour l'instant.{% endif %}</p>
+    <p>{% if search %}Aucun résultat pour « {{ search }} ».{% else %}Aucun visiteur sur cette période.{% endif %}</p>
   </div>
   {% endif %}
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
+<script>
+(function() {
+  const raw = {{ activity | tojson }};
+
+  // Build last-30-days labels
+  const labels = [], counts = [];
+  const today = new Date();
+  const map   = {};
+  raw.forEach(function(r){ map[r.day] = r.count; });
+
+  for (var i = 29; i >= 0; i--) {
+    var d = new Date(today);
+    d.setDate(d.getDate() - i);
+    var key = d.toISOString().slice(0, 10);
+    labels.push(key.slice(5)); // MM-DD
+    counts.push(map[key] || 0);
+  }
+
+  new Chart(document.getElementById('activity-chart'), {
+    type: 'line',
+    data: {
+      labels: labels,
+      datasets: [{
+        data:            counts,
+        borderColor:     '#dc4545',
+        backgroundColor: 'rgba(220,69,69,.08)',
+        borderWidth:     2,
+        pointRadius:     counts.map(function(v){ return v > 0 ? 3 : 0; }),
+        pointBackgroundColor: '#dc4545',
+        fill:            true,
+        tension:         0.3,
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { grid: { display: false }, ticks: { font: { size: 10 }, color: '#94a3b8', maxTicksLimit: 10 } },
+        y: { beginAtZero: true, ticks: { stepSize: 1, font: { size: 10 }, color: '#94a3b8' }, grid: { color: '#f1f5f9' } }
+      }
+    }
+  });
+})();
+</script>
 {% endblock %}

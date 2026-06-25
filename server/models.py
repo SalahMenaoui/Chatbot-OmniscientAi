@@ -2,6 +2,7 @@ import sqlite3
 import json
 import os
 from contextlib import contextmanager
+from datetime import datetime, timedelta
 
 DEFAULT_CONFIG = {
     "botName":        "Assistant",
@@ -138,22 +139,82 @@ def log_message(conversation_id: int, role: str, content: str):
         )
 
 
-def get_visitors(client_id: int, search: str = ""):
-    q = f"%{search}%" if search else "%"
+PERIOD_DELTA = {
+    "1h":  timedelta(hours=1),
+    "24h": timedelta(hours=24),
+    "7d":  timedelta(days=7),
+    "30d": timedelta(days=30),
+}
+
+def _since(period: str):
+    """Return ISO datetime string cutoff for a period key, or None."""
+    delta = PERIOD_DELTA.get(period)
+    if delta:
+        return (datetime.utcnow() - delta).strftime("%Y-%m-%d %H:%M:%S")
+    return None
+
+
+def get_visitors(client_id: int, search: str = "", period: str = ""):
+    q     = f"%{search}%" if search else "%"
+    since = _since(period)
+    date_clause = "AND v.created_at >= ?" if since else ""
+    params = (client_id, q, q) + ((since,) if since else ())
     with get_conn() as conn:
         rows = conn.execute(
-            """SELECT v.id, v.name, v.email, v.created_at,
+            f"""SELECT v.id, v.name, v.email, v.created_at,
                       COUNT(m.id)             AS message_count,
                       MAX(c.last_activity_at) AS last_seen
                FROM visitors v
                LEFT JOIN conversations c ON c.visitor_id = v.id
                LEFT JOIN messages m      ON m.conversation_id = c.id
                WHERE v.client_id = ? AND (v.name LIKE ? OR v.email LIKE ?)
+               {date_clause}
                GROUP BY v.id
                ORDER BY v.created_at DESC""",
-            (client_id, q, q),
+            params,
         ).fetchall()
         return [dict(r) for r in rows]
+
+
+def get_stats(client_id: int, period: str = "") -> dict:
+    since = _since(period)
+    v_clause = "AND created_at >= ?" if since else ""
+    c_clause  = "AND c.started_at >= ?" if since else ""
+    p = (since,) if since else ()
+    with get_conn() as conn:
+        leads = conn.execute(
+            f"SELECT COUNT(*) FROM visitors WHERE client_id = ? {v_clause}",
+            (client_id,) + p
+        ).fetchone()[0]
+        convs = conn.execute(
+            f"""SELECT COUNT(*) FROM conversations c
+                JOIN visitors v ON v.id = c.visitor_id
+                WHERE v.client_id = ? {c_clause}""",
+            (client_id,) + p
+        ).fetchone()[0]
+        msgs = conn.execute(
+            """SELECT COUNT(*) FROM messages m
+               JOIN conversations c ON c.id = m.conversation_id
+               JOIN visitors v ON v.id = c.visitor_id
+               WHERE v.client_id = ?""",
+            (client_id,)
+        ).fetchone()[0]
+    return {"leads": leads, "conversations": convs, "messages": msgs}
+
+
+def get_daily_activity(client_id: int, days: int = 30) -> list:
+    since = (datetime.utcnow() - timedelta(days=days)).strftime("%Y-%m-%d")
+    with get_conn() as conn:
+        rows = conn.execute(
+            """SELECT date(c.started_at) AS day, COUNT(*) AS count
+               FROM conversations c
+               JOIN visitors v ON v.id = c.visitor_id
+               WHERE v.client_id = ? AND date(c.started_at) >= ?
+               GROUP BY date(c.started_at)
+               ORDER BY day""",
+            (client_id, since)
+        ).fetchall()
+    return [dict(r) for r in rows]
 
 
 def get_visitor(visitor_id: int, client_id: int):
