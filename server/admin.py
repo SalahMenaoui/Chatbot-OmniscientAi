@@ -63,6 +63,22 @@ def admin_create_user(request: Request, client_key: str,
     return RedirectResponse("/admin/clients?created=1", status_code=302)
 
 
+@router.post("/admin/clients/{client_key}/rename")
+def admin_rename_client(request: Request, client_key: str, name: str = Form(...)):
+    redir = _guard(request)
+    if redir: return redir
+    models.rename_client(client_key, name)
+    return RedirectResponse("/admin/clients", status_code=302)
+
+
+@router.post("/admin/clients/{client_key}/delete")
+def admin_delete_client(request: Request, client_key: str):
+    redir = _guard(request)
+    if redir: return redir
+    models.delete_client(client_key)
+    return RedirectResponse("/admin/clients", status_code=302)
+
+
 @router.post("/admin/clients/{client_key}/tier")
 def admin_set_tier(request: Request, client_key: str, tier: int = Form(...)):
     redir = _guard(request)

@@ -45,6 +45,8 @@
   .btn-cancel{padding:9px 16px;border-radius:8px;border:none;background:#2c2c2c;color:#94a3b8;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit}
   .btn-config{background:#2c2c2c;color:#94a3b8;border:1px solid #3a3a3a;text-decoration:none}.btn-config:hover{background:#3a3a3a;color:#e2e8f0}
   .btn-code{background:#2c2c2c;color:#94a3b8;border:1px solid #3a3a3a}.btn-code:hover{background:#3a3a3a;color:#e2e8f0}
+  .btn-rename{background:#2c2c2c;color:#94a3b8;border:1px solid #3a3a3a}.btn-rename:hover{background:#3a3a3a;color:#e2e8f0}
+  .btn-delete{background:#2c2c2c;color:#ef4444;border:1px solid #3a3a3a}.btn-delete:hover{background:#7f1d1d;color:#fca5a5;border-color:#7f1d1d}
   .snippet{background:#111111;border:1px solid #2c2c2c;border-radius:8px;padding:12px 14px;font-family:monospace;font-size:12px;color:#e87070;word-break:break-all;margin-bottom:12px;line-height:1.6;user-select:all;cursor:text}
   .alert{max-width:900px;margin:0 auto 16px;padding:10px 14px;border-radius:8px;font-size:13px;font-weight:500}
   .alert-ok{background:#14532d;color:#86efac}
@@ -112,6 +114,8 @@
             {% endif %}
             <a href="/admin/clients/{{ c.client_key }}/config" class="btn btn-config">⚙ Config</a>
             <button class="btn btn-code" onclick="openCode('{{ c.client_key }}', '{{ c.name }}')">⟨/⟩ Intégrer</button>
+            <button class="btn btn-rename" onclick="openRename('{{ c.client_key }}', '{{ c.name }}')">✎ Renommer</button>
+            <button class="btn btn-delete" onclick="openDelete('{{ c.client_key }}', '{{ c.name }}')">✕ Supprimer</button>
           </div>
         </td>
       </tr>
@@ -152,6 +156,37 @@
   </div>
 </div>
 
+<!-- Modal renommer -->
+<div class="overlay" id="overlay-rename" onclick="if(event.target===this)closeRename()">
+  <div class="modal">
+    <h3>Renommer le client</h3>
+    <p id="rename-sub" style="margin-bottom:14px"></p>
+    <form id="rename-form" method="post">
+      <label>Nouveau nom</label>
+      <input type="text" name="name" id="rename-input" required placeholder="Nom du client">
+      <div class="modal-btns">
+        <button type="button" class="btn-cancel" onclick="closeRename()">Annuler</button>
+        <button type="submit" class="btn-confirm">Renommer →</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Modal supprimer -->
+<div class="overlay" id="overlay-delete" onclick="if(event.target===this)closeDelete()">
+  <div class="modal">
+    <h3 style="color:#ef4444">Supprimer le client</h3>
+    <p id="delete-sub" style="margin-bottom:14px"></p>
+    <p style="font-size:12px;color:#ef4444;margin-bottom:18px">Cette action supprime le client, ses visiteurs, ses conversations et ses accès dashboard. Irréversible.</p>
+    <form id="delete-form" method="post">
+      <div class="modal-btns">
+        <button type="button" class="btn-cancel" onclick="closeDelete()">Annuler</button>
+        <button type="submit" class="btn-confirm" style="background:#dc2626">Supprimer définitivement</button>
+      </div>
+    </form>
+  </div>
+</div>
+
 <script>
   function openModal(key, name) {
     document.getElementById('modal-title').textContent = 'Accès dashboard — ' + name;
@@ -181,6 +216,26 @@
       btn.textContent = 'Copié ✓';
       setTimeout(function(){ btn.textContent = 'Copier →'; }, 2000);
     });
+  }
+
+  function openRename(key, name) {
+    document.getElementById('rename-sub').textContent = 'Client : ' + name;
+    document.getElementById('rename-input').value = name;
+    document.getElementById('rename-form').action = '/admin/clients/' + key + '/rename';
+    document.getElementById('overlay-rename').classList.add('open');
+    setTimeout(function(){ document.getElementById('rename-input').select(); }, 50);
+  }
+  function closeRename() {
+    document.getElementById('overlay-rename').classList.remove('open');
+  }
+
+  function openDelete(key, name) {
+    document.getElementById('delete-sub').textContent = 'Tu es sur le point de supprimer "' + name + '" (' + key + ').';
+    document.getElementById('delete-form').action = '/admin/clients/' + key + '/delete';
+    document.getElementById('overlay-delete').classList.add('open');
+  }
+  function closeDelete() {
+    document.getElementById('overlay-delete').classList.remove('open');
   }
 </script>
 </body>

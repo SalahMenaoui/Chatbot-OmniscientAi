@@ -300,6 +300,27 @@ def set_client_tier(client_key: str, tier: int):
         )
 
 
+def rename_client(client_key: str, new_name: str):
+    with get_conn() as conn:
+        conn.execute(
+            "UPDATE clients SET name = ? WHERE client_key = ?", (new_name.strip(), client_key)
+        )
+
+
+def delete_client(client_key: str):
+    with get_conn() as conn:
+        row = conn.execute("SELECT id FROM clients WHERE client_key = ?", (client_key,)).fetchone()
+        if not row:
+            return
+        client_id = row["id"]
+        conn.execute("DELETE FROM messages WHERE conversation_id IN (SELECT id FROM conversations WHERE visitor_id IN (SELECT id FROM visitors WHERE client_id = ?))", (client_id,))
+        conn.execute("DELETE FROM conversations WHERE visitor_id IN (SELECT id FROM visitors WHERE client_id = ?)", (client_id,))
+        conn.execute("DELETE FROM visitors WHERE client_id = ?", (client_id,))
+        conn.execute("DELETE FROM email_settings WHERE client_id = ?", (client_id,))
+        conn.execute("DELETE FROM dashboard_users WHERE client_id = ?", (client_id,))
+        conn.execute("DELETE FROM clients WHERE id = ?", (client_id,))
+
+
 def get_conversations_pending_email():
     with get_conn() as conn:
         rows = conn.execute(
