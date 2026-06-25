@@ -113,6 +113,22 @@ html, body {
 #chat-toggle:active { transform: scale(0.94); }
 #chat-toggle svg    { width: 22px; height: 22px; }
 
+@keyframes chat-nudge {
+  0%,100% { transform: translateY(0)   scale(1)    }
+  18%     { transform: translateY(-9px) scale(1.07) }
+  32%     { transform: translateY(0)   scale(1)    }
+  46%     { transform: translateY(-5px) scale(1.03) }
+  60%     { transform: translateY(0)   scale(1)    }
+}
+@keyframes chat-glow {
+  0%,100% { box-shadow: 0 4px 20px rgba(0,0,0,.22), 0 1px 4px rgba(0,0,0,.12) }
+  25%     { box-shadow: 0 4px 20px rgba(0,0,0,.22), 0 0 0 10px rgba(255,255,255,.15), 0 0 28px rgba(0,0,0,.35) }
+  55%     { box-shadow: 0 4px 20px rgba(0,0,0,.22), 0 1px 4px rgba(0,0,0,.12) }
+}
+#chat-toggle.idle-bounce {
+  animation: chat-nudge .9s ease, chat-glow .9s ease;
+}
+
 #toggle-icon-open,
 #toggle-icon-close { display: flex; align-items: center; justify-content: center; }
 

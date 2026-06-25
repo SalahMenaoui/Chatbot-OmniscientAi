@@ -467,6 +467,17 @@
     // ── Init + window resize ──────────────────────────────────────
     applyBtn(); applySize();
     window.addEventListener("resize", () => { applyBtn(); if (document.body.classList.contains("panel-open")) { applySize(); positionPanel(); } });
+
+    // ── Idle bounce animation ─────────────────────────────────────
+    toggle.addEventListener("animationend", () => toggle.classList.remove("idle-bounce"));
+    function nudge() {
+      if (document.body.classList.contains("panel-open")) return;
+      toggle.classList.remove("idle-bounce");
+      void toggle.offsetWidth;
+      toggle.classList.add("idle-bounce");
+    }
+    setTimeout(nudge, 3000);
+    setInterval(nudge, 7000);
   })();
 
   // ── Async init: capture form → then show chat ─────────────────────
