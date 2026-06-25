@@ -201,19 +201,49 @@ section { padding: 100px 40px; }
 .price-card {
   background: var(--s1); border: 1px solid var(--border); border-radius: 20px;
   padding: 32px; display: flex; flex-direction: column;
-  transition: transform .2s, border-color .2s;
-}
-.price-card:hover { transform: translateY(-4px); }
-.price-card.popular {
-  border-color: var(--red);
-  background: linear-gradient(160deg, rgba(220,69,69,.07), var(--s1));
+  transition: transform .2s, box-shadow .2s;
   position: relative;
 }
+.price-card:hover { transform: translateY(-5px); }
+
+/* Bronze */
+.price-card.bronze {
+  border-color: rgba(180,100,30,.5);
+  box-shadow: 0 0 18px rgba(180,100,30,.1), 0 0 0 1px rgba(180,100,30,.15) inset;
+}
+.price-card.bronze:hover {
+  box-shadow: 0 8px 32px rgba(180,100,30,.18), 0 0 0 1px rgba(180,100,30,.25) inset;
+}
+/* Silver — populaire, brille plus */
+.price-card.silver {
+  border-color: rgba(200,200,215,.55);
+  background: linear-gradient(160deg, rgba(200,200,215,.06), var(--s1));
+  box-shadow: 0 0 32px rgba(200,200,215,.18), 0 0 64px rgba(200,200,215,.07), 0 0 0 1px rgba(200,200,215,.2) inset;
+  animation: silver-pulse 3s ease-in-out infinite;
+}
+@keyframes silver-pulse {
+  0%,100% { box-shadow: 0 0 32px rgba(200,200,215,.18), 0 0 64px rgba(200,200,215,.07), 0 0 0 1px rgba(200,200,215,.2) inset; }
+  50%      { box-shadow: 0 0 48px rgba(200,200,215,.28), 0 0 96px rgba(200,200,215,.12), 0 0 0 1px rgba(200,200,215,.3) inset; }
+}
+.price-card.silver:hover {
+  box-shadow: 0 8px 48px rgba(200,200,215,.35), 0 0 96px rgba(200,200,215,.15), 0 0 0 1px rgba(200,200,215,.35) inset;
+  animation: none;
+}
+/* Gold */
+.price-card.gold {
+  border-color: rgba(210,170,30,.5);
+  box-shadow: 0 0 18px rgba(210,170,30,.1), 0 0 0 1px rgba(210,170,30,.15) inset;
+}
+.price-card.gold:hover {
+  box-shadow: 0 8px 32px rgba(210,170,30,.2), 0 0 0 1px rgba(210,170,30,.28) inset;
+}
+
 .popular-badge {
   position: absolute; top: -12px; left: 50%; transform: translateX(-50%);
-  background: var(--red); color: #fff;
+  background: rgba(200,200,215,.15); border: 1px solid rgba(200,200,215,.4); color: #d8d8e8;
   padding: 3px 14px; border-radius: 99px;
   font-size: 11px; font-weight: 700; white-space: nowrap;
+  backdrop-filter: blur(4px);
 }
 .price-tier { font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; margin-bottom: 8px; }
 .price-name { font-size: 20px; font-weight: 800; margin-bottom: 6px; }
@@ -234,11 +264,14 @@ section { padding: 100px 40px; }
 }
 .price-cta:hover { border-color: var(--red); color: var(--red); }
 .price-setup { font-size: 11px; color: var(--muted); text-align: center; margin-top: 10px; }
-.price-card.popular .price-cta {
-  background: var(--red); color: #fff; border-color: var(--red);
-  box-shadow: 0 4px 20px rgba(220,69,69,.3);
+.price-card.silver .price-cta {
+  background: rgba(200,200,215,.15); color: #d8d8e8;
+  border-color: rgba(200,200,215,.4);
+  box-shadow: 0 4px 20px rgba(200,200,215,.12);
 }
-.price-card.popular .price-cta:hover { background: var(--red-dk); }
+.price-card.silver .price-cta:hover {
+  background: rgba(200,200,215,.25); border-color: rgba(200,200,215,.6);
+}
 
 /* ── CTA FINAL ───────────────────────────────────────────────── */
 .cta-section {
@@ -406,53 +439,6 @@ footer {
   </div>
 </section>
 
-<!-- FEATURES -->
-<section class="features">
-  <div class="section-inner">
-    <div class="section-label">Ce que vous obtenez</div>
-    <h2 class="section-title">Tout ce dont un commerce<br>local a besoin</h2>
-    <div class="features-grid">
-      <div class="feature-card">
-        <div class="feat-tier">Essentiel</div>
-        <div class="feat-title">Chatbot IA</div>
-        <div class="feat-sub">Un assistant conversationnel qui connaît votre business sur le bout des doigts.</div>
-        <ul class="feat-list">
-          <li>Réponses automatiques 24h/24</li>
-          <li>Design à vos couleurs et logo</li>
-          <li>Widget flottant sur votre site</li>
-          <li>Réponses rapides personnalisées</li>
-          <li>Intégration en 1 ligne de code</li>
-        </ul>
-      </div>
-      <div class="feature-card featured">
-        <div class="feat-tier">Populaire</div>
-        <div class="feat-title">Capture de leads</div>
-        <div class="feat-sub">Sachez qui visite votre site et transformez les curieux en clients.</div>
-        <ul class="feat-list">
-          <li>Tout du plan Essentiel</li>
-          <li>Capture nom + email des visiteurs</li>
-          <li>Dashboard avec historique complet</li>
-          <li>Export CSV de vos contacts</li>
-          <li>Statistiques de conversations</li>
-          <li>Graphique d'activité en temps réel</li>
-        </ul>
-      </div>
-      <div class="feature-card">
-        <div class="feat-tier">Avancé</div>
-        <div class="feat-title">Relance automatique</div>
-        <div class="feat-sub">Gardez le contact avec vos visiteurs, automatiquement.</div>
-        <ul class="feat-list">
-          <li>Tout du plan Capture</li>
-          <li>Email de suivi automatique</li>
-          <li>Délai et ton personnalisables</li>
-          <li>Historique des emails envoyés</li>
-          <li>Optimisé pour la conversion</li>
-        </ul>
-      </div>
-    </div>
-  </div>
-</section>
-
 <!-- PRICING -->
 <section id="tarifs">
   <div class="section-inner">
@@ -460,7 +446,7 @@ footer {
     <h2 class="section-title">Simple. Transparent.<br>Sans surprise.</h2>
     <p class="section-sub">Aucun contrat à long terme. Résiliez quand vous voulez.</p>
     <div class="pricing-grid">
-      <div class="price-card">
+      <div class="price-card bronze">
         <div class="price-tier">Bronze</div>
         <div class="price-name">Chatbot</div>
         <div class="price-desc">L'essentiel pour ne plus laisser un visiteur sans réponse.</div>
@@ -477,7 +463,7 @@ footer {
         <a href="mailto:Salah@omniscientai.ca" class="price-cta">Commencer →</a>
         <p class="price-setup">+ frais de mise en place uniques</p>
       </div>
-      <div class="price-card popular">
+      <div class="price-card silver">
         <div class="popular-badge">Le plus populaire</div>
         <div class="price-tier">Silver</div>
         <div class="price-name">Dashboard</div>
@@ -496,7 +482,7 @@ footer {
         <a href="mailto:Salah@omniscientai.ca" class="price-cta">Commencer →</a>
         <p class="price-setup">+ frais de mise en place uniques</p>
       </div>
-      <div class="price-card">
+      <div class="price-card gold">
         <div class="price-tier">Gold</div>
         <div class="price-name">Relance Email</div>
         <div class="price-desc">Automatisez le suivi et ne laissez plus un lead sans réponse.</div>
