@@ -77,6 +77,14 @@ tr:hover td{background:#1f1f1f}
 .btn-confirm-red{background:#dc2626}
 .snippet{background:#111;border:1px solid #2c2c2c;border-radius:8px;padding:12px 14px;font-family:monospace;font-size:11px;color:#e87070;word-break:break-all;margin-bottom:12px;line-height:1.6;user-select:all}
 .warn-text{font-size:12px;color:#f87171;margin-bottom:16px}
+
+.search-bar{max-width:960px;margin:0 auto 16px;position:relative}
+.search-bar input{width:100%;padding:10px 16px 10px 40px;background:#1c1c1c;border:1px solid #2c2c2c;border-radius:10px;color:#e2e8f0;font-size:13px;font-family:inherit;outline:none;transition:border-color .15s}
+.search-bar input:focus{border-color:#dc4545}
+.search-bar input::placeholder{color:#475569}
+.search-bar svg{position:absolute;left:13px;top:50%;transform:translateY(-50%);pointer-events:none;color:#475569}
+.search-count{position:absolute;right:14px;top:50%;transform:translateY(-50%);font-size:11px;color:#475569}
+.row-hidden{display:none}
 </style>
 </head>
 <body>
@@ -91,6 +99,12 @@ tr:hover td{background:#1f1f1f}
 
 {% if created %}<div class="alert alert-ok">✓ Accès dashboard créé.</div>{% endif %}
 {% if error   %}<div class="alert alert-err">✗ {{ error }}</div>{% endif %}
+
+<div class="search-bar">
+  <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+  <input type="text" id="client-search" placeholder="Rechercher un client…" autocomplete="off">
+  <span class="search-count" id="search-count"></span>
+</div>
 
 <div class="card">
   <table>
@@ -289,6 +303,30 @@ function openDelete(key, name) {
   document.getElementById('delete-form').action     = '/admin/clients/' + key + '/delete';
   document.getElementById('overlay-delete').classList.add('open');
 }
+
+// ── Client search ─────────────────────────────────────────────
+(function() {
+  var input = document.getElementById('client-search');
+  var count = document.getElementById('search-count');
+  var rows  = document.querySelectorAll('tbody tr');
+  var total = rows.length;
+
+  input.addEventListener('input', function() {
+    var q = input.value.trim().toLowerCase();
+    var visible = 0;
+    rows.forEach(function(row) {
+      var text = row.textContent.toLowerCase();
+      var show = !q || text.indexOf(q) !== -1;
+      row.classList.toggle('row-hidden', !show);
+      if (show) visible++;
+    });
+    count.textContent = q ? visible + ' / ' + total : '';
+  });
+
+  input.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') { input.value = ''; input.dispatchEvent(new Event('input')); }
+  });
+})();
 </script>
 </body>
 </html>

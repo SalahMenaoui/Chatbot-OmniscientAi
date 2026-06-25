@@ -12,7 +12,9 @@
 
   .toolbar{display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap}
   .toolbar .search-wrap{flex:1;min-width:200px;max-width:300px}
-  .toolbar .search-wrap input{width:100%;padding:8px 12px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:13px;color:#1c1c1c;background:#fff;outline:none;font-family:inherit}
+  .toolbar .search-wrap{position:relative}
+  .toolbar .search-wrap svg{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:#94a3b8;pointer-events:none}
+  .toolbar .search-wrap input{width:100%;padding:8px 12px 8px 32px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:13px;color:#1c1c1c;background:#fff;outline:none;font-family:inherit}
   .toolbar .search-wrap input:focus{border-color:#dc4545}
 
   .period-tabs{display:flex;gap:4px;background:#f1f5f9;padding:4px;border-radius:8px}
@@ -59,7 +61,8 @@
 <form class="toolbar" method="get" id="filter-form">
   <input type="hidden" name="period" value="{{ period }}">
   <div class="search-wrap">
-    <input type="text" name="q" value="{{ search }}" placeholder="Rechercher nom ou email…">
+    <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+    <input type="text" id="search-input" name="q" value="{{ search }}" placeholder="Nom ou email…" autocomplete="off">
   </div>
   <div class="period-tabs">
     <a href="?period=&q={{ search }}" class="{{ 'active' if not period }}">Tout</a>
@@ -68,8 +71,7 @@
     <a href="?period=7d&q={{ search }}" class="{{ 'active' if period == '7d' }}">7 jours</a>
     <a href="?period=30d&q={{ search }}" class="{{ 'active' if period == '30d' }}">30 jours</a>
   </div>
-  <button type="submit" class="btn btn-primary btn-sm">Rechercher</button>
-  {% if search %}<a href="?period={{ period }}" class="btn btn-ghost btn-sm">Effacer</a>{% endif %}
+  {% if search %}<a href="?period={{ period }}" class="btn btn-ghost btn-sm">✕ Effacer</a>{% endif %}
   <a href="/dashboard/export.csv?period={{ period }}&q={{ search }}" class="btn-export">
     ↓ Exporter CSV
   </a>
@@ -142,6 +144,23 @@
       }
     }
   });
+})();
+
+// ── Search debounce ───────────────────────────────────────────
+(function() {
+  var input = document.getElementById('search-input');
+  if (!input) return;
+  var form  = input.closest('form');
+  var timer;
+  input.addEventListener('input', function() {
+    clearTimeout(timer);
+    timer = setTimeout(function() { form.submit(); }, 420);
+  });
+  input.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') { input.value = ''; form.submit(); }
+  });
+  input.focus();
+  input.setSelectionRange(input.value.length, input.value.length);
 })();
 </script>
 {% endblock %}
