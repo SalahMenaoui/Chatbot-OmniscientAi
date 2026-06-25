@@ -105,6 +105,12 @@ async def chat(request: Request):
     return JSONResponse(content=response.model_dump())
 
 
+@app.exception_handler(Exception)
+async def global_exception_handler(request: Request, exc: Exception):
+    import traceback
+    return JSONResponse(status_code=500, content={"error": repr(exc), "trace": traceback.format_exc()})
+
+
 @app.get("/health")
 async def health():
     return {"status": "ok"}
