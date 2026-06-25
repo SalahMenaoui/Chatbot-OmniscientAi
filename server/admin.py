@@ -4,8 +4,7 @@ from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from server import models, auth
 
-BASE_DIR       = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-templates      = Jinja2Templates(directory=os.path.join(BASE_DIR, "templates"))
+templates      = Jinja2Templates(directory="templates")
 ADMIN_PASSWORD = os.environ.get("ADMIN_PASSWORD", "")
 router         = APIRouter()
 
