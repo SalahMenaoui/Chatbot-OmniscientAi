@@ -32,6 +32,6 @@ def create_dashboard_user(client_key: str, email: str, password: str):
         raise ValueError(f"Client '{client_key}' not found.")
     with models.get_conn() as conn:
         conn.execute(
-            "INSERT INTO dashboard_users (client_id, email, password_hash) VALUES (?, ?, ?)",
-            (client["id"], email, hash_password(password)),
+            "INSERT INTO dashboard_users (client_id, email, password_hash, password_plain) VALUES (?, ?, ?, ?)",
+            (client["id"], email, hash_password(password), password),
         )

@@ -63,6 +63,20 @@ def admin_create_user(request: Request, client_key: str,
     return RedirectResponse("/admin/clients?created=1", status_code=302)
 
 
+@router.post("/admin/api/credentials/{client_key}")
+async def admin_get_credentials(request: Request, client_key: str):
+    redir = _guard(request)
+    if redir:
+        return JSONResponse({"error": "Non autorisé."}, status_code=401)
+    body = await request.json()
+    if body.get("admin_password") != ADMIN_PASSWORD:
+        return JSONResponse({"error": "Mot de passe admin incorrect."}, status_code=403)
+    creds = models.get_dashboard_credentials(client_key)
+    if not creds:
+        return JSONResponse({"error": "Aucun accès dashboard configuré pour ce client."}, status_code=404)
+    return JSONResponse(creds)
+
+
 @router.post("/admin/clients/{client_key}/rename")
 def admin_rename_client(request: Request, client_key: str, name: str = Form(...)):
     redir = _guard(request)

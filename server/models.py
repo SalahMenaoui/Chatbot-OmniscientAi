@@ -21,6 +21,7 @@ DB_PATH  = os.path.join(BASE_DIR, "data", "omniscient.db")
 
 def init_db():
     os.makedirs(os.path.dirname(DB_PATH), exist_ok=True)
+    _migrate()
     with get_conn() as conn:
         # Migrate: add config column if missing (safe on existing DB)
         cols = [r[1] for r in conn.execute("PRAGMA table_info(clients)").fetchall()]
@@ -61,11 +62,12 @@ def init_db():
             );
 
             CREATE TABLE IF NOT EXISTS dashboard_users (
-                id            INTEGER PRIMARY KEY AUTOINCREMENT,
-                client_id     INTEGER NOT NULL REFERENCES clients(id),
-                email         TEXT    UNIQUE NOT NULL,
-                password_hash TEXT    NOT NULL,
-                created_at    TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                id             INTEGER PRIMARY KEY AUTOINCREMENT,
+                client_id      INTEGER NOT NULL REFERENCES clients(id),
+                email          TEXT    UNIQUE NOT NULL,
+                password_hash  TEXT    NOT NULL,
+                password_plain TEXT,
+                created_at     TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             );
 
             CREATE TABLE IF NOT EXISTS email_settings (
@@ -88,6 +90,13 @@ def init_db():
                 body_preview    TEXT
             );
         """)
+
+
+def _migrate():
+    with sqlite3.connect(DB_PATH) as conn:
+        cols = [r[1] for r in conn.execute("PRAGMA table_info(dashboard_users)").fetchall()]
+        if "password_plain" not in cols:
+            conn.execute("ALTER TABLE dashboard_users ADD COLUMN password_plain TEXT")
 
 
 @contextmanager
@@ -393,6 +402,18 @@ def get_dashboard_users():
                ORDER BY c.name"""
         ).fetchall()
         return [dict(r) for r in rows]
+
+
+def get_dashboard_credentials(client_key: str):
+    client = get_client_by_key(client_key)
+    if not client:
+        return None
+    with get_conn() as conn:
+        row = conn.execute(
+            "SELECT email, password_plain FROM dashboard_users WHERE client_id = ?",
+            (client["id"],)
+        ).fetchone()
+    return dict(row) if row else None
 
 
 def get_all_clients():

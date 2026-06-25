@@ -152,6 +152,7 @@ tr:hover td{background:#1f1f1f}
               <hr>
               {% if c.tier >= 2 %}
               <button onclick="closeDD('{{ c.client_key }}');openModal('{{ c.client_key }}','{{ c.name }}')"><span class="dd-icon">+</span>Accès dashboard</button>
+              <button onclick="closeDD('{{ c.client_key }}');openCreds('{{ c.client_key }}','{{ c.name }}')"><span class="dd-icon">🔑</span>Identifiants</button>
               {% endif %}
               {% if c.tier < 3 %}
               <form method="post" action="/admin/clients/{{ c.client_key }}/tier" style="display:contents">
@@ -222,6 +223,36 @@ tr:hover td{background:#1f1f1f}
         <button type="submit" class="btn-confirm">Renommer →</button>
       </div>
     </form>
+  </div>
+</div>
+
+<!-- Modal identifiants -->
+<div class="overlay" id="overlay-creds" onclick="if(event.target===this)closeCreds()">
+  <div class="modal">
+    <h3 id="creds-title">Identifiants dashboard</h3>
+    <p id="creds-sub" style="margin-bottom:16px"></p>
+    <div id="creds-form-wrap">
+      <label>Mot de passe admin</label>
+      <input type="password" id="creds-pwd" placeholder="••••••••" autocomplete="off">
+      <p id="creds-error" style="font-size:12px;color:#f87171;margin:-6px 0 10px;display:none"></p>
+      <div class="modal-btns">
+        <button type="button" class="btn-cancel" onclick="closeCreds()">Annuler</button>
+        <button type="button" class="btn-confirm" onclick="submitCreds()">Voir →</button>
+      </div>
+    </div>
+    <div id="creds-result" style="display:none">
+      <label>Email</label>
+      <div style="background:#111;border:1px solid #2c2c2c;border-radius:8px;padding:10px 12px;font-size:13px;color:#e2e8f0;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center">
+        <span id="creds-email"></span>
+        <button onclick="copyText('creds-email')" style="background:none;border:none;color:#dc4545;cursor:pointer;font-size:11px;font-weight:700;font-family:inherit">Copier</button>
+      </div>
+      <label>Mot de passe</label>
+      <div style="background:#111;border:1px solid #2c2c2c;border-radius:8px;padding:10px 12px;font-size:13px;color:#e2e8f0;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center">
+        <span id="creds-pass" style="font-family:monospace"></span>
+        <button onclick="copyText('creds-pass')" style="background:none;border:none;color:#dc4545;cursor:pointer;font-size:11px;font-weight:700;font-family:inherit">Copier</button>
+      </div>
+      <button type="button" class="btn-cancel" style="width:100%" onclick="closeCreds()">Fermer</button>
+    </div>
   </div>
 </div>
 
@@ -303,6 +334,55 @@ function openDelete(key, name) {
   document.getElementById('delete-form').action     = '/admin/clients/' + key + '/delete';
   document.getElementById('overlay-delete').classList.add('open');
 }
+
+// ── Identifiants ─────────────────────────────────────────────
+var _credsKey = '';
+function openCreds(key, name) {
+  _credsKey = key;
+  document.getElementById('creds-title').textContent = 'Identifiants — ' + name;
+  document.getElementById('creds-sub').textContent   = 'Entrez votre mot de passe admin pour voir les accès.';
+  document.getElementById('creds-pwd').value         = '';
+  document.getElementById('creds-error').style.display = 'none';
+  document.getElementById('creds-form-wrap').style.display = 'block';
+  document.getElementById('creds-result').style.display    = 'none';
+  document.getElementById('overlay-creds').classList.add('open');
+  setTimeout(function(){ document.getElementById('creds-pwd').focus(); }, 50);
+}
+function closeCreds() {
+  document.getElementById('overlay-creds').classList.remove('open');
+  document.getElementById('creds-pwd').value = '';
+}
+function submitCreds() {
+  var pwd = document.getElementById('creds-pwd').value;
+  var err = document.getElementById('creds-error');
+  if (!pwd) { err.textContent = 'Entrez votre mot de passe.'; err.style.display='block'; return; }
+  fetch('/admin/api/credentials/' + _credsKey, {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({admin_password: pwd})
+  })
+  .then(function(r){ return r.json(); })
+  .then(function(data) {
+    if (data.error) {
+      err.textContent = data.error; err.style.display = 'block'; return;
+    }
+    document.getElementById('creds-email').textContent = data.email;
+    document.getElementById('creds-pass').textContent  = data.password_plain || '(non disponible — recréer l\'accès)';
+    document.getElementById('creds-form-wrap').style.display = 'none';
+    document.getElementById('creds-result').style.display    = 'block';
+  });
+}
+function copyText(id) {
+  var text = document.getElementById(id).textContent;
+  navigator.clipboard.writeText(text).then(function() {
+    var btn = event.target;
+    btn.textContent = 'Copié ✓';
+    setTimeout(function(){ btn.textContent = 'Copier'; }, 2000);
+  });
+}
+document.getElementById('creds-pwd').addEventListener('keydown', function(e){
+  if (e.key === 'Enter') submitCreds();
+});
 
 // ── Client search ─────────────────────────────────────────────
 (function() {
