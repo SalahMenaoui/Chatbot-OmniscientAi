@@ -29,6 +29,8 @@
   .btn-down:hover{background:#475569;color:#fff}
   .mono{font-family:monospace;font-size:11px;color:#64748b}
   .module-tags{font-size:11px;color:#475569}
+  .link-chatbot{font-size:12px;color:#6366f1;text-decoration:none;font-weight:600}
+  .link-chatbot:hover{color:#818cf8}
 </style>
 </head>
 <body>
@@ -53,7 +55,10 @@
     <tbody>
       {% for c in clients %}
       <tr>
-        <td><strong style="color:#f1f5f9;">{{ c.name }}</strong></td>
+        <td>
+          <strong style="color:#f1f5f9;">{{ c.name }}</strong><br>
+          <a class="link-chatbot" href="/clients/{{ c.client_key }}/chatbot/" target="_blank">↗ Voir le chatbot</a>
+        </td>
         <td class="mono">{{ c.client_key }}</td>
         <td>
           <div class="dots">
