@@ -6,33 +6,33 @@
 <title>{% block title %}Dashboard{% endblock %} — Omniscient AI</title>
 <style>
   *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f8fafc;color:#1e293b;min-height:100vh;display:flex}
+  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f8fafc;color:#1c1c1c;min-height:100vh;display:flex}
 
   /* ── Sidebar ─────────────────────────────── */
-  .sidebar{width:220px;min-height:100vh;background:#0f172a;color:#94a3b8;display:flex;flex-direction:column;flex-shrink:0;position:fixed;top:0;left:0;bottom:0}
-  .sidebar-brand{padding:20px 20px 16px;border-bottom:1px solid #1e293b}
+  .sidebar{width:220px;min-height:100vh;background:#111111;color:#94a3b8;display:flex;flex-direction:column;flex-shrink:0;position:fixed;top:0;left:0;bottom:0}
+  .sidebar-brand{padding:20px 20px 16px;border-bottom:1px solid #1c1c1c}
   .sidebar-brand h1{font-size:13px;font-weight:700;color:#fff;letter-spacing:.06em;text-transform:uppercase}
   .sidebar-brand p{font-size:12px;color:#475569;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .sidebar nav{padding:12px 10px;flex:1}
   .sidebar nav a{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:8px;text-decoration:none;color:#94a3b8;font-size:13px;font-weight:500;margin-bottom:2px;transition:background .15s,color .15s}
-  .sidebar nav a:hover{background:#1e293b;color:#e2e8f0}
+  .sidebar nav a:hover{background:#1c1c1c;color:#e2e8f0}
   .sidebar nav a.active{background:#dc4545;color:#fff}
   .sidebar nav a svg{width:15px;height:15px;flex-shrink:0}
-  .sidebar-footer{padding:12px 10px;border-top:1px solid #1e293b}
+  .sidebar-footer{padding:12px 10px;border-top:1px solid #1c1c1c}
   .sidebar-footer a{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:8px;text-decoration:none;color:#64748b;font-size:13px;font-weight:500;transition:background .15s,color .15s}
-  .sidebar-footer a:hover{background:#1e293b;color:#e2e8f0}
+  .sidebar-footer a:hover{background:#1c1c1c;color:#e2e8f0}
   .sidebar-footer a svg{width:15px;height:15px}
 
   /* ── Main ────────────────────────────────── */
   .main{margin-left:220px;flex:1;padding:32px;min-height:100vh}
   .page-header{margin-bottom:24px}
-  .page-header h2{font-size:21px;font-weight:700;color:#0f172a}
+  .page-header h2{font-size:21px;font-weight:700;color:#111111}
   .page-header p{color:#64748b;font-size:13px;margin-top:4px}
 
   /* ── Card ────────────────────────────────── */
   .card{background:#fff;border-radius:12px;border:1px solid #e2e8f0;overflow:hidden}
   .card-header{padding:14px 20px;border-bottom:1px solid #f1f5f9;display:flex;align-items:center;justify-content:space-between}
-  .card-header h3{font-size:14px;font-weight:600;color:#0f172a}
+  .card-header h3{font-size:14px;font-weight:600;color:#111111}
   .card-body{padding:20px}
 
   /* ── Table ───────────────────────────────── */
@@ -52,7 +52,7 @@
   /* ── Form ────────────────────────────────── */
   .form-group{margin-bottom:16px}
   label{display:block;font-size:13px;font-weight:600;color:#374151;margin-bottom:6px}
-  input[type=text],input[type=email],input[type=number],input[type=password],select,textarea{width:100%;padding:9px 12px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:14px;color:#1e293b;background:#fff;outline:none;transition:border-color .15s,box-shadow .15s;font-family:inherit}
+  input[type=text],input[type=email],input[type=number],input[type=password],select,textarea{width:100%;padding:9px 12px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:14px;color:#1c1c1c;background:#fff;outline:none;transition:border-color .15s,box-shadow .15s;font-family:inherit}
   input:focus,select:focus,textarea:focus{border-color:#dc4545;box-shadow:0 0 0 3px rgba(99,102,241,.12)}
   .btn{display:inline-flex;align-items:center;gap:6px;padding:9px 16px;border-radius:8px;border:none;font-size:13px;font-weight:600;cursor:pointer;text-decoration:none;transition:background .15s,transform .1s;font-family:inherit}
   .btn:active{transform:scale(.98)}

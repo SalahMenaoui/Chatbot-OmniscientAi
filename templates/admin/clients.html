@@ -6,25 +6,25 @@
 <title>Clients — Admin Omniscient AI</title>
 <style>
   *{box-sizing:border-box;margin:0;padding:0}
-  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#0f172a;color:#e2e8f0;min-height:100vh;padding:40px 24px}
+  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#111111;color:#e2e8f0;min-height:100vh;padding:40px 24px}
   .header{max-width:900px;margin:0 auto 28px;display:flex;justify-content:space-between;align-items:center}
   .header h1{font-size:18px;font-weight:800;color:#f1f5f9}
   .header-nav{display:flex;gap:16px;align-items:center}
   .header-nav a{font-size:13px;color:#64748b;text-decoration:none}
   .header-nav a:hover{color:#94a3b8}
-  .card{max-width:900px;margin:0 auto;background:#1e293b;border-radius:16px;border:1px solid #334155;overflow:hidden}
+  .card{max-width:900px;margin:0 auto;background:#1c1c1c;border-radius:16px;border:1px solid #2c2c2c;overflow:hidden}
   table{width:100%;border-collapse:collapse}
-  th{padding:11px 20px;font-size:11px;font-weight:700;color:#475569;text-transform:uppercase;letter-spacing:.06em;background:#0f172a;border-bottom:1px solid #334155;text-align:left}
-  td{padding:12px 20px;border-bottom:1px solid #1e293b;font-size:13px;color:#cbd5e1;vertical-align:middle}
+  th{padding:11px 20px;font-size:11px;font-weight:700;color:#475569;text-transform:uppercase;letter-spacing:.06em;background:#111111;border-bottom:1px solid #2c2c2c;text-align:left}
+  td{padding:12px 20px;border-bottom:1px solid #1c1c1c;font-size:13px;color:#cbd5e1;vertical-align:middle}
   tr:last-child td{border-bottom:none}
   .dots{display:flex;gap:5px;align-items:center}
   .dot{width:9px;height:9px;border-radius:50%}
-  .dot-on{background:#dc4545}.dot-off{background:#334155}
+  .dot-on{background:#dc4545}.dot-off{background:#2c2c2c}
   .tier-label{font-size:11px;color:#64748b;margin-left:6px}
   .actions{display:flex;gap:6px;flex-wrap:wrap}
   .btn{padding:5px 11px;border-radius:6px;border:none;cursor:pointer;font-size:12px;font-weight:600;transition:background .15s;font-family:inherit}
   .btn-up{background:#dc4545;color:#fff}.btn-up:hover{background:#b83535}
-  .btn-down{background:#334155;color:#94a3b8}.btn-down:hover{background:#475569;color:#fff}
+  .btn-down{background:#2c2c2c;color:#94a3b8}.btn-down:hover{background:#475569;color:#fff}
   .btn-access{background:#0f766e;color:#fff}.btn-access:hover{background:#0d9488}
   .mono{font-family:monospace;font-size:11px;color:#64748b}
   .module-tags{font-size:11px;color:#475569}
@@ -33,16 +33,16 @@
   /* Modal */
   .overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:100;align-items:center;justify-content:center}
   .overlay.open{display:flex}
-  .modal{background:#1e293b;border:1px solid #334155;border-radius:16px;padding:28px;width:340px}
+  .modal{background:#1c1c1c;border:1px solid #2c2c2c;border-radius:16px;padding:28px;width:340px}
   .modal h3{font-size:15px;font-weight:700;color:#f1f5f9;margin-bottom:4px}
   .modal p{font-size:12px;color:#64748b;margin-bottom:18px}
   .modal label{display:block;font-size:12px;font-weight:600;color:#94a3b8;margin-bottom:5px}
-  .modal input{width:100%;padding:9px 12px;border-radius:8px;border:1px solid #334155;background:#0f172a;color:#e2e8f0;font-size:13px;outline:none;margin-bottom:12px;font-family:inherit}
+  .modal input{width:100%;padding:9px 12px;border-radius:8px;border:1px solid #2c2c2c;background:#111111;color:#e2e8f0;font-size:13px;outline:none;margin-bottom:12px;font-family:inherit}
   .modal input:focus{border-color:#dc4545;box-shadow:0 0 0 3px rgba(220,69,69,.15)}
   .modal-btns{display:flex;gap:8px;margin-top:4px}
   .btn-confirm{flex:1;padding:9px;border-radius:8px;border:none;background:#dc4545;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit}
   .btn-confirm:hover{background:#b83535}
-  .btn-cancel{padding:9px 16px;border-radius:8px;border:none;background:#334155;color:#94a3b8;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit}
+  .btn-cancel{padding:9px 16px;border-radius:8px;border:none;background:#2c2c2c;color:#94a3b8;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit}
   .alert{max-width:900px;margin:0 auto 16px;padding:10px 14px;border-radius:8px;font-size:13px;font-weight:500}
   .alert-ok{background:#14532d;color:#86efac}
   .alert-err{background:#7f1d1d;color:#fca5a5}
