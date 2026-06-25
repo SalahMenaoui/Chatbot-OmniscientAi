@@ -2,7 +2,8 @@ import sqlite3
 import json
 import os
 from contextlib import contextmanager
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
+from zoneinfo import ZoneInfo
 
 DEFAULT_CONFIG = {
     "botName":        "Assistant",
@@ -202,37 +203,87 @@ def get_stats(client_id: int, period: str = "") -> dict:
     return {"leads": leads, "conversations": convs, "messages": msgs}
 
 
-def get_period_activity(client_id: int, period: str = "") -> list:
-    """Return {slot, count} list with granularity matching period."""
+_CHART_TZ   = ZoneInfo(os.environ.get("TZ_NAME", "America/Toronto"))
+_CHART_TITLES = {
+    "1h":  "Activité — dernière heure",
+    "24h": "Activité — dernières 24h",
+    "7d":  "Activité — 7 derniers jours",
+    "30d": "Activité — 30 derniers jours",
+    "":    "Toute l'activité",
+}
+
+
+def get_period_activity(client_id: int, period: str = "") -> dict:
+    """
+    Returns {labels, counts, title} ready for Chart.js.
+    All times converted to America/Toronto (configurable via TZ_NAME env var).
+    """
+    tz        = _CHART_TZ
+    now_local = datetime.now(tz)
+    now_utc   = datetime.utcnow()
+
+    # Determine UTC cutoff and bucket function
     if period == "1h":
-        since    = (datetime.utcnow() - timedelta(hours=1)).strftime("%Y-%m-%d %H:%M:%S")
-        slot_fmt = "%H:%M"
-        grp_fmt  = "%Y-%m-%d %H:%M"
+        since_utc = now_utc - timedelta(hours=1)
+        bucket_fn = lambda dt: dt.strftime("%H:%M")
+        all_slots = [(now_local - timedelta(minutes=i)).strftime("%H:%M") for i in range(59, -1, -1)]
     elif period == "24h":
-        since    = (datetime.utcnow() - timedelta(hours=24)).strftime("%Y-%m-%d %H:%M:%S")
-        slot_fmt = "%H:00"
-        grp_fmt  = "%Y-%m-%d %H"
+        since_utc = now_utc - timedelta(hours=24)
+        bucket_fn = lambda dt: dt.strftime("%H:00")
+        all_slots = [(now_local - timedelta(hours=i)).strftime("%H:00") for i in range(23, -1, -1)]
     elif period == "7d":
-        since    = (datetime.utcnow() - timedelta(days=7)).strftime("%Y-%m-%d")
-        slot_fmt = "%Y-%m-%d"
-        grp_fmt  = "%Y-%m-%d"
+        since_utc = now_utc - timedelta(days=7)
+        bucket_fn = lambda dt: dt.strftime("%Y-%m-%d")
+        all_slots = [(now_local - timedelta(days=i)).strftime("%Y-%m-%d") for i in range(6, -1, -1)]
+    elif period == "30d":
+        since_utc = now_utc - timedelta(days=30)
+        bucket_fn = lambda dt: dt.strftime("%Y-%m-%d")
+        all_slots = [(now_local - timedelta(days=i)).strftime("%Y-%m-%d") for i in range(29, -1, -1)]
     else:
-        since    = (datetime.utcnow() - timedelta(days=30)).strftime("%Y-%m-%d")
-        slot_fmt = "%Y-%m-%d"
-        grp_fmt  = "%Y-%m-%d"
+        since_utc = None
+        bucket_fn = lambda dt: dt.strftime("%Y-%m-%d")
+        all_slots = None  # Tout — use actual data
+
+    since_str = since_utc.strftime("%Y-%m-%d %H:%M:%S") if since_utc else None
+    where  = "AND c.started_at >= ?" if since_str else ""
+    params = (client_id,) + ((since_str,) if since_str else ())
 
     with get_conn() as conn:
         rows = conn.execute(
-            f"""SELECT strftime('{slot_fmt}', c.started_at) AS slot,
-                       COUNT(*) AS count
-                FROM conversations c
+            f"""SELECT c.started_at FROM conversations c
                 JOIN visitors v ON v.id = c.visitor_id
-                WHERE v.client_id = ? AND c.started_at >= ?
-                GROUP BY strftime('{grp_fmt}', c.started_at)
-                ORDER BY slot""",
-            (client_id, since)
+                WHERE v.client_id = ? {where}
+                ORDER BY c.started_at""",
+            params
         ).fetchall()
-    return [dict(r) for r in rows]
+
+    # Convert UTC → local TZ, bucket, count
+    counts_map: dict[str, int] = {}
+    for row in rows:
+        ts = dict(row)["started_at"]
+        try:
+            dt_utc   = datetime.strptime(ts[:19], "%Y-%m-%d %H:%M:%S").replace(tzinfo=timezone.utc)
+            dt_local = dt_utc.astimezone(tz)
+            key      = bucket_fn(dt_local)
+            counts_map[key] = counts_map.get(key, 0) + 1
+        except Exception:
+            pass
+
+    if all_slots is None:
+        # "Tout" — show only days that have data
+        slots  = sorted(counts_map.keys())
+        labels = [s[5:] for s in slots]   # MM-DD
+        counts = [counts_map[s] for s in slots]
+    else:
+        # Fill every slot, even empty ones
+        labels = [s[5:] if len(s) == 10 else s for s in all_slots]
+        counts = [counts_map.get(s, 0) for s in all_slots]
+
+    return {
+        "labels": labels,
+        "counts": counts,
+        "title":  _CHART_TITLES.get(period, "Activité"),
+    }
 
 
 def get_visitor(visitor_id: int, client_id: int):

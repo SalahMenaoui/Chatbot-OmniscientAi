@@ -113,56 +113,9 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
 <script>
 (function() {
-  var raw    = {{ activity | tojson }};
-  var period = '{{ period }}';
-  var map    = {};
-  raw.forEach(function(r){ map[r.slot] = r.count; });
-
-  var labels = [], counts = [];
-  var now    = new Date();
-  var titles = { '1h': 'Activité — dernière heure', '24h': 'Activité — dernières 24h', '7d': 'Activité — 7 derniers jours' };
-  var maxTicks = 10;
-
-  if (period === '1h') {
-    // One point per minute, last 60 minutes, UTC slots "HH:MM"
-    document.getElementById('chart-title').textContent = titles['1h'];
-    maxTicks = 12;
-    for (var i = 59; i >= 0; i--) {
-      var d   = new Date(now.getTime() - i * 60000);
-      var key = d.toISOString().slice(11, 16); // UTC HH:MM
-      labels.push(i % 5 === 0 ? key : '');    // show label every 5 min
-      counts.push(map[key] || 0);
-    }
-  } else if (period === '24h') {
-    // One point per hour, last 24 hours, UTC slots "HH:00"
-    document.getElementById('chart-title').textContent = titles['24h'];
-    maxTicks = 12;
-    for (var i = 23; i >= 0; i--) {
-      var d   = new Date(now.getTime() - i * 3600000);
-      var key = d.toISOString().slice(11, 13) + ':00'; // UTC HH:00
-      labels.push(key);
-      counts.push(map[key] || 0);
-    }
-  } else if (period === '7d') {
-    // One point per day, last 7 days
-    document.getElementById('chart-title').textContent = titles['7d'];
-    maxTicks = 7;
-    for (var i = 6; i >= 0; i--) {
-      var d   = new Date(now.getTime() - i * 86400000);
-      var key = d.toISOString().slice(0, 10); // UTC YYYY-MM-DD
-      labels.push(key.slice(5));              // MM-DD
-      counts.push(map[key] || 0);
-    }
-  } else {
-    // Default: 30 days
-    document.getElementById('chart-title').textContent = 'Activité — 30 derniers jours';
-    for (var i = 29; i >= 0; i--) {
-      var d   = new Date(now.getTime() - i * 86400000);
-      var key = d.toISOString().slice(0, 10);
-      labels.push(key.slice(5));
-      counts.push(map[key] || 0);
-    }
-  }
+  var labels = {{ activity.labels | tojson }};
+  var counts = {{ activity.counts | tojson }};
+  document.getElementById('chart-title').textContent = {{ activity.title | tojson }};
 
   new Chart(document.getElementById('activity-chart'), {
     type: 'line',
@@ -184,7 +137,7 @@
       maintainAspectRatio: false,
       plugins: { legend: { display: false } },
       scales: {
-        x: { grid: { display: false }, ticks: { font: { size: 10 }, color: '#94a3b8', maxTicksLimit: maxTicks } },
+        x: { grid: { display: false }, ticks: { font: { size: 10 }, color: '#94a3b8', maxTicksLimit: 12 } },
         y: { beginAtZero: true, ticks: { stepSize: 1, font: { size: 10 }, color: '#94a3b8' }, grid: { color: '#f1f5f9' } }
       }
     }
