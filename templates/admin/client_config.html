@@ -7,35 +7,48 @@
 <style>
   *{box-sizing:border-box;margin:0;padding:0}
   body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#111111;color:#e2e8f0;min-height:100vh;padding:40px 24px}
-  .header{max-width:680px;margin:0 auto 28px;display:flex;justify-content:space-between;align-items:center}
+  .header{max-width:720px;margin:0 auto 28px;display:flex;justify-content:space-between;align-items:center}
   .header h1{font-size:18px;font-weight:800;color:#f1f5f9}
   .header h1 span{color:#dc4545}
   .nav{display:flex;gap:16px}
   .nav a{font-size:13px;color:#64748b;text-decoration:none}
   .nav a:hover{color:#94a3b8}
-  .section{max-width:680px;margin:0 auto 20px;background:#1c1c1c;border-radius:16px;border:1px solid #2c2c2c;padding:24px}
-  .section h2{font-size:14px;font-weight:700;color:#f1f5f9;margin-bottom:18px}
+  .section{max-width:720px;margin:0 auto 20px;background:#1c1c1c;border-radius:16px;border:1px solid #2c2c2c;padding:24px}
+  .section h2{font-size:14px;font-weight:700;color:#f1f5f9;margin-bottom:18px;display:flex;align-items:center;gap:8px}
+  .section h2 .badge{font-size:10px;font-weight:600;padding:2px 7px;border-radius:99px;background:#2c2c2c;color:#64748b;letter-spacing:.04em}
   .row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
   .group{margin-bottom:14px}
   label{display:block;font-size:11px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.05em;margin-bottom:5px}
-  input[type=text],input[type=color],textarea{width:100%;padding:9px 12px;border-radius:8px;border:1px solid #2c2c2c;background:#111111;color:#e2e8f0;font-size:13px;outline:none;transition:border-color .15s;font-family:inherit}
+  input[type=text],input[type=url],input[type=color],textarea{width:100%;padding:9px 12px;border-radius:8px;border:1px solid #2c2c2c;background:#111111;color:#e2e8f0;font-size:13px;outline:none;transition:border-color .15s;font-family:inherit}
   input:focus,textarea:focus{border-color:#dc4545;box-shadow:0 0 0 3px rgba(220,69,69,.15)}
   input[type=color]{height:40px;padding:3px 6px;cursor:pointer}
   textarea{resize:vertical;min-height:90px;line-height:1.5}
   .hint{font-size:11px;color:#475569;margin-top:4px}
-  .btn{padding:10px 20px;border-radius:8px;border:none;cursor:pointer;font-size:13px;font-weight:700;font-family:inherit;transition:background .15s}
+  .btn{padding:10px 20px;border-radius:8px;border:none;cursor:pointer;font-size:13px;font-weight:700;font-family:inherit;transition:background .15s;white-space:nowrap}
   .btn-primary{background:#dc4545;color:#fff}
   .btn-primary:hover{background:#b83535}
-  .btn-ghost{background:#2c2c2c;color:#94a3b8;text-decoration:none;display:inline-block;line-height:1}
+  .btn-analyze{background:#2c2c2c;color:#e2e8f0;border:1px solid #3a3a3a}
+  .btn-analyze:hover{background:#3a3a3a}
+  .btn-ghost{background:#2c2c2c;color:#94a3b8;text-decoration:none;display:inline-flex;align-items:center;padding:10px 16px;border-radius:8px;font-size:13px;font-weight:700}
   .btn-ghost:hover{background:#3a3a3a;color:#e2e8f0}
-  .alert{max-width:680px;margin:0 auto 16px;padding:10px 14px;border-radius:8px;font-size:13px;font-weight:500}
+  .alert{max-width:720px;margin:0 auto 16px;padding:10px 14px;border-radius:8px;font-size:13px;font-weight:500}
   .alert-ok{background:#14532d;color:#86efac}
-  .preview-link{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:#dc4545;text-decoration:none;font-weight:600;margin-top:12px}
-  .preview-link:hover{color:#e87070}
-  .divider{border:none;border-top:1px solid #2c2c2c;margin:18px 0}
-  .color-row{display:flex;align-items:center;gap:10px}
+  .color-row{display:flex;align-items:center;gap:8px}
   .color-row input[type=text]{flex:1}
   .color-row input[type=color]{width:44px;flex-shrink:0}
+  .status{font-size:13px;margin-top:10px;padding:10px 12px;border-radius:8px;display:none}
+  .status.loading{display:block;background:#1e293b;color:#64748b}
+  .status.ok   {display:block;background:#14532d;color:#86efac}
+  .status.err  {display:block;background:#7f1d1d;color:#fca5a5}
+  .source-row{display:flex;gap:10px;margin-bottom:10px;align-items:center}
+  .source-label{font-size:12px;font-weight:700;color:#64748b;width:100px;flex-shrink:0;text-transform:uppercase;letter-spacing:.04em}
+  .source-row input{flex:1}
+  .logo-preview{width:60px;height:60px;border-radius:10px;border:1px solid #2c2c2c;background:#0a0a0a;object-fit:contain;display:none}
+  .logo-wrap{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+  .sources-note{font-size:11px;color:#475569;margin-top:10px}
+  .sources-note span{color:#64748b}
+  .step{font-size:12px;color:#475569;margin-bottom:14px;line-height:1.6}
 </style>
 </head>
 <body>
@@ -50,107 +63,231 @@
 </div>
 
 {% if added %}<div class="alert alert-ok">✓ Client créé. Configure le chatbot ci-dessous.</div>{% endif %}
-{% if saved %}<div class="alert alert-ok">✓ Configuration sauvegardée.</div>{% endif %}
+{% if saved %}<div class="alert alert-ok">✓ Configuration sauvegardée. Le chatbot est à jour.</div>{% endif %}
 
+<!-- SOURCES -->
 <div class="section">
-  <h2>Auto-config depuis le site web</h2>
-  <div class="group" style="display:flex;gap:10px">
-    <input type="text" id="scrape-url" placeholder="https://client.com" style="flex:1">
-    <button type="button" id="scrape-btn" class="btn btn-primary" style="white-space:nowrap">Analyser →</button>
+  <h2>Sources <span class="badge">Auto-config IA</span></h2>
+  <p class="step">Colle les liens du client → clique <strong>Analyser</strong> → tout se remplit automatiquement.</p>
+
+  <div class="source-row">
+    <span class="source-label">🌐 Site web</span>
+    <input type="url" id="src-website" placeholder="https://client.com" value="">
   </div>
-  <p class="hint">Colle l'URL du site du client — le bot name, system prompt et couleurs seront générés automatiquement par IA.</p>
-  <div id="scrape-status" style="display:none;margin-top:10px;font-size:13px;color:#64748b"></div>
+  <div class="source-row">
+    <span class="source-label">📸 Instagram</span>
+    <input type="url" id="src-instagram" placeholder="https://instagram.com/client ou @client">
+  </div>
+  <div class="source-row">
+    <span class="source-label">📍 Google Maps</span>
+    <input type="url" id="src-googlemaps" placeholder="https://maps.google.com/...">
+  </div>
+
+  <div style="display:flex;gap:10px;margin-top:14px;align-items:center">
+    <button type="button" id="analyze-btn" class="btn btn-analyze">⚡ Analyser toutes les sources</button>
+    <span id="analyze-spinner" style="display:none;font-size:13px;color:#64748b">Analyse en cours… (20-40 sec)</span>
+  </div>
+  <div id="analyze-status" class="status"></div>
+
+  <p class="sources-note">
+    <span>Instagram</span> → bio + captions + photo de profil (avatar) ·
+    <span>Google Maps</span> → avis, horaires, adresse (nécessite GOOGLE_PLACES_API_KEY) ·
+    <span>TikTok</span> → non supporté sur serveur
+  </p>
 </div>
 
-<form method="post">
+<form method="post" id="config-form">
+
+<!-- Hidden art direction fields -->
+<input type="hidden" name="avatar_url"            id="h-avatar-url"     value="{{ cfg.get('avatarUrl','') }}">
+<input type="hidden" name="avatar_initial"         id="h-avatar-init"    value="{{ cfg.get('avatarInitial','') }}">
+<input type="hidden" name="placeholder"            id="h-placeholder"    value="{{ cfg.get('placeholder','') }}">
+<input type="hidden" name="color_primary_dark"     id="h-primary-dark"   value="{{ cfg.get('colorPrimaryDark','') }}">
+<input type="hidden" name="color_primary_contrast" id="h-primary-cont"   value="{{ cfg.get('colorPrimaryContrast','#ffffff') }}">
+<input type="hidden" name="color_bg"               id="h-color-bg"       value="{{ cfg.get('colorBg','#ffffff') }}">
+<input type="hidden" name="color_surface"          id="h-color-surface"  value="{{ cfg.get('colorSurface','#f8f8f8') }}">
+<input type="hidden" name="color_bot_bubble"       id="h-bot-bubble"     value="{{ cfg.get('colorBotBubble','#f0f0f0') }}">
+<input type="hidden" name="color_bot_text"         id="h-bot-text"       value="{{ cfg.get('colorBotText','#1a1a1a') }}">
+<input type="hidden" name="color_user_bubble"      id="h-user-bubble"    value="{{ cfg.get('colorUserBubble','') }}">
+<input type="hidden" name="color_user_text"        id="h-user-text"      value="{{ cfg.get('colorUserText','#ffffff') }}">
+<input type="hidden" name="color_header_text"      id="h-header-text"    value="{{ cfg.get('colorHeaderText','#ffffff') }}">
+<input type="hidden" name="color_header_subtext"   id="h-header-sub"     value="{{ cfg.get('colorHeaderSubtext','rgba(255,255,255,0.7)') }}">
+<input type="hidden" name="font_family"            id="h-font-family"    value="{{ cfg.get('fontFamily','') }}">
+<input type="hidden" name="google_fonts_url"       id="h-fonts-url"      value="{{ cfg.get('googleFontsUrl','') }}">
+<input type="hidden" name="radius_bubble"          id="h-r-bubble"       value="{{ cfg.get('radiusBubble','18px') }}">
+<input type="hidden" name="radius_input"           id="h-r-input"        value="{{ cfg.get('radiusInput','12px') }}">
+<input type="hidden" name="radius_send"            id="h-r-send"         value="{{ cfg.get('radiusSend','10px') }}">
+
+<!-- CHATBOT -->
 <div class="section">
   <h2>Chatbot</h2>
+
+  <div class="logo-wrap">
+    <img id="logo-preview" class="logo-preview" src="" alt="Logo">
+    <div>
+      <label style="margin-bottom:2px">Avatar (logo)</label>
+      <p class="hint">Auto-récupéré depuis Instagram ou le site · 128×128px</p>
+    </div>
+  </div>
+
   <div class="group">
     <label>Nom du bot</label>
-    <input type="text" name="bot_name" value="{{ cfg.botName }}" required placeholder="Assistant Apple">
+    <input type="text" name="bot_name" id="f-bot-name" value="{{ cfg.botName }}" required placeholder="Assistant Aqua Services">
   </div>
   <div class="group">
     <label>Message de bienvenue</label>
-    <input type="text" name="welcome_message" value="{{ cfg.welcomeMessage }}" placeholder="Bonjour ! Comment puis-je vous aider ?">
+    <input type="text" name="welcome_message" id="f-welcome" value="{{ cfg.welcomeMessage }}" placeholder="Bonjour ! Comment puis-je vous aider ?">
   </div>
   <div class="group">
-    <label>Réponses rapides <span style="color:#475569;font-weight:400">(une par ligne)</span></label>
-    <textarea name="quick_replies" placeholder="Horaires d'ouverture&#10;Prendre un rendez-vous&#10;Tarifs">{{ cfg.quickReplies | join('\n') }}</textarea>
+    <label>Réponses rapides <span style="color:#475569;font-weight:400;text-transform:none">(une par ligne)</span></label>
+    <textarea name="quick_replies" id="f-quick">{{ (cfg.quickReplies or []) | join('\n') }}</textarea>
   </div>
 </div>
 
+<!-- SYSTEM PROMPT -->
 <div class="section">
   <h2>Prompt système</h2>
   <div class="group">
-    <textarea name="system_prompt" style="min-height:160px" required placeholder="Tu es un assistant pour [Entreprise]...">{{ cfg.systemPrompt }}</textarea>
-    <p class="hint">Ce prompt définit le comportement et les connaissances du bot. Le client ne le voit jamais.</p>
+    <textarea name="system_prompt" id="f-prompt" style="min-height:200px" required placeholder="Tu es un assistant pour [Entreprise]...">{{ cfg.systemPrompt }}</textarea>
+    <p class="hint">Ce texte définit le comportement et les connaissances du bot. Le client ne le voit jamais.</p>
   </div>
 </div>
 
+<!-- APPARENCE -->
 <div class="section">
   <h2>Apparence</h2>
   <div class="row">
     <div class="group">
       <label>Couleur header</label>
       <div class="color-row">
-        <input type="color" id="hbg-picker" value="{{ cfg.colorHeaderBg }}" oninput="document.getElementById('hbg').value=this.value">
-        <input type="text"  id="hbg" name="color_header_bg" value="{{ cfg.colorHeaderBg }}" oninput="document.getElementById('hbg-picker').value=this.value">
+        <input type="color" id="hbg-picker" value="{{ cfg.colorHeaderBg or '#1a1a2e' }}" oninput="sync('hbg')">
+        <input type="text" id="hbg" name="color_header_bg" value="{{ cfg.colorHeaderBg or '#1a1a2e' }}" oninput="syncPicker('hbg')">
       </div>
     </div>
     <div class="group">
       <label>Couleur principale</label>
       <div class="color-row">
-        <input type="color" id="cp-picker" value="{{ cfg.colorPrimary }}" oninput="document.getElementById('cp').value=this.value">
-        <input type="text"  id="cp" name="color_primary" value="{{ cfg.colorPrimary }}" oninput="document.getElementById('cp-picker').value=this.value">
+        <input type="color" id="cp-picker" value="{{ cfg.colorPrimary or '#6c63ff' }}" oninput="sync('cp')">
+        <input type="text" id="cp" name="color_primary" value="{{ cfg.colorPrimary or '#6c63ff' }}" oninput="syncPicker('cp')">
       </div>
     </div>
   </div>
+  <p class="hint">Les autres couleurs (bulles, fond, texte, polices, arrondis) sont générées automatiquement lors de l'analyse.</p>
 </div>
 
-<div style="max-width:680px;margin:0 auto;display:flex;gap:12px;align-items:center">
+<div style="max-width:720px;margin:0 auto;display:flex;gap:12px;align-items:center">
   <button type="submit" class="btn btn-primary">Sauvegarder →</button>
   <a href="/clients/{{ client.client_key }}/chatbot/" target="_blank" class="btn btn-ghost">Voir le chatbot ↗</a>
 </div>
 </form>
 
 <script>
-document.getElementById('scrape-btn').addEventListener('click', async function() {
-  const url    = document.getElementById('scrape-url').value.trim();
-  const status = document.getElementById('scrape-status');
-  if (!url) { status.style.display='block'; status.textContent='Entre une URL.'; return; }
+function sync(id) {
+  document.getElementById(id).value = document.getElementById(id+'-picker').value;
+}
+function syncPicker(id) {
+  const v = document.getElementById(id).value;
+  if (/^#[0-9a-fA-F]{6}$/.test(v)) document.getElementById(id+'-picker').value = v;
+}
 
-  this.disabled = true;
-  this.textContent = 'Analyse en cours…';
-  status.style.display = 'block';
-  status.style.color = '#64748b';
-  status.textContent = 'Scraping du site… (peut prendre 15-30 sec)';
+// Show logo if avatarUrl already set
+(function() {
+  const url = document.getElementById('h-avatar-url').value;
+  if (url) {
+    const img = document.getElementById('logo-preview');
+    img.src   = url;
+    img.style.display = 'block';
+  }
+})();
+
+document.getElementById('analyze-btn').addEventListener('click', async function() {
+  const website   = document.getElementById('src-website').value.trim();
+  const instagram = document.getElementById('src-instagram').value.trim();
+  const googlemaps= document.getElementById('src-googlemaps').value.trim();
+  const status    = document.getElementById('analyze-status');
+  const spinner   = document.getElementById('analyze-spinner');
+
+  if (!website) { alert('Entre au moins l\'URL du site web.'); return; }
+
+  this.disabled   = true;
+  spinner.style.display = 'inline';
+  status.className = 'status loading';
+  status.textContent = 'Scraping des sources… peut prendre 20-40 secondes.';
 
   try {
-    const res = await fetch('/admin/api/scrape', {
-      method: 'POST',
+    const res  = await fetch('/admin/api/scrape', {
+      method:  'POST',
       headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({url})
+      body:    JSON.stringify({website, instagram, googlemaps}),
     });
     const data = await res.json();
 
     if (data.error) {
-      status.style.color = '#fca5a5';
+      status.className = 'status err';
       status.textContent = '✗ ' + data.error;
     } else {
-      if (data.botName)        document.querySelector('[name=bot_name]').value        = data.botName;
-      if (data.systemPrompt)   document.querySelector('[name=system_prompt]').value   = data.systemPrompt;
-      if (data.welcomeMessage) document.querySelector('[name=welcome_message]').value = data.welcomeMessage;
-      if (data.quickReplies)   document.querySelector('[name=quick_replies]').value   = data.quickReplies.join('\n');
-      status.style.color = '#86efac';
-      status.textContent = '✓ Formulaire pré-rempli — vérifie et sauvegarde.';
+      // Fill visible fields
+      if (data.botName)        document.getElementById('f-bot-name').value = data.botName;
+      if (data.systemPrompt)   document.getElementById('f-prompt').value   = data.systemPrompt;
+      if (data.welcomeMessage) document.getElementById('f-welcome').value  = data.welcomeMessage;
+      if (data.quickReplies)   document.getElementById('f-quick').value    = data.quickReplies.join('\n');
+
+      // Fill color pickers
+      const setColor = (id, val) => {
+        if (!val) return;
+        const el = document.getElementById(id);
+        const pk = document.getElementById(id+'-picker');
+        if (el) el.value = val;
+        if (pk && /^#[0-9a-fA-F]{6}$/.test(val)) pk.value = val;
+      };
+      setColor('hbg', data.colorHeaderBg);
+      setColor('cp',  data.colorPrimary);
+
+      // Fill hidden fields
+      const h = (id, val) => { if (val !== undefined && val !== null) document.getElementById(id).value = val; };
+      h('h-avatar-url',   data.avatarUrl         || '');
+      h('h-avatar-init',  data.avatarInitial      || '');
+      h('h-placeholder',  data.placeholder        || '');
+      h('h-primary-dark', data.colorPrimaryDark   || '');
+      h('h-primary-cont', data.colorPrimaryContrast || '#ffffff');
+      h('h-color-bg',     data.colorBg            || '#ffffff');
+      h('h-color-surface',data.colorSurface       || '#f8f8f8');
+      h('h-bot-bubble',   data.colorBotBubble     || '#f0f0f0');
+      h('h-bot-text',     data.colorBotText       || '#1a1a1a');
+      h('h-user-bubble',  data.colorUserBubble    || '');
+      h('h-user-text',    data.colorUserText      || '#ffffff');
+      h('h-header-text',  data.colorHeaderText    || '#ffffff');
+      h('h-header-sub',   data.colorHeaderSubtext || 'rgba(255,255,255,0.7)');
+      h('h-font-family',  data.fontFamily         || '');
+      h('h-fonts-url',    data.googleFontsUrl     || '');
+      h('h-r-bubble',     data.radiusBubble       || '18px');
+      h('h-r-input',      data.radiusInput        || '12px');
+      h('h-r-send',       data.radiusSend         || '10px');
+
+      // Show logo preview
+      if (data.avatarUrl) {
+        const img = document.getElementById('logo-preview');
+        img.src   = data.avatarUrl;
+        img.style.display = 'block';
+      }
+
+      // Build status message
+      const errors = data._scrape_errors || {};
+      let msg = '✓ Formulaire pré-rempli — vérifie et sauvegarde.';
+      if (Object.keys(errors).length) {
+        const errs = Object.entries(errors).map(([k,v]) => `${k}: ${v}`).join(' · ');
+        msg += `\n⚠ Certaines sources ont échoué : ${errs}`;
+      }
+      status.className = 'status ok';
+      status.textContent = msg;
     }
   } catch(e) {
-    status.style.color = '#fca5a5';
-    status.textContent = '✗ Erreur réseau.';
+    status.className = 'status err';
+    status.textContent = '✗ Erreur réseau : ' + e.message;
   }
 
   this.disabled = false;
-  this.textContent = 'Analyser →';
+  spinner.style.display = 'none';
 });
 </script>
 </body>

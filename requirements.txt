@@ -11,3 +11,4 @@ resend
 python-multipart
 jinja2
 itsdangerous
+instaloader

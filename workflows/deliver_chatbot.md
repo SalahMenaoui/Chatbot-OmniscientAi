@@ -1,90 +1,62 @@
 # Workflow: deliver_chatbot
 
-## Objective
-Generate the final embeddable snippet and package everything in the client's folder
-ready for delivery.
+## Nouveau workflow (Admin Web)
 
-## Inputs Required
-- Client name
-- `clients/<client_name>/chatbot/` — personalized chatbot (QA passed)
-- QA results reviewed and approved
+Depuis la refonte en SaaS, tout se fait depuis l'interface admin en ligne.
+Plus besoin de passer par le CLI ou des fichiers locaux.
 
-## Steps
+---
 
-### 1. Verify QA is complete
-- Confirm `qa_results.md` exists and was reviewed.
-- Confirm I have explicitly approved the QA results before proceeding.
+## Créer un nouveau client
 
-### 2. Final config check
-Before generating the snippet, confirm with me:
-- Is the `proxyUrl` in `config.json` set to the correct production endpoint?
-  (Default is `/api/chat` — this must match the client's server setup)
-- Are brand colors correct?
-- Is the welcome message finalized?
+1. Va sur `/admin/setup` → "Nouveau client" → entre nom + clé (ex: `aqua-services`)
+2. Tu arrives directement sur la page **Config** du client
 
-### 3. Generate the snippet
+## Configurer le chatbot (page Config)
+
+1. **Sources** — colle les URLs :
+   - Site web (obligatoire)
+   - Instagram (optionnel — scrape bio, captions, avatar)
+   - Google Maps (optionnel — nécessite `GOOGLE_PLACES_API_KEY`)
+2. Clique **⚡ Analyser toutes les sources** — 20-40 sec
+3. Le formulaire se pré-remplit : nom du bot, system prompt, couleurs, polices, avatar
+4. Ajuste si besoin → **Sauvegarder →**
+
+## Livrer au client
+
+Le chatbot est immédiatement live à :
 ```
-python tools/generate_snippet.py <client_name> \
-  --proxy-url https://web-production-42cf20.up.railway.app/api/chat \
-  --chatbot-url https://web-production-42cf20.up.railway.app/clients/<client_name>/chatbot/
-```
-This creates:
-- `clients/<client_name>/snippet.js` — the embeddable widget script
-- `clients/<client_name>/DELIVERY.md` — client setup instructions
-
-### 4. Deploy to Railway (required)
-```
-git add clients/<client_name>/
-git commit -m "<client_name>: deploy"
-git push
-```
-Railway redeploys automatically in ~30 seconds. The chatbot is then live at:
-`https://web-production-42cf20.up.railway.app/clients/<client_name>/chatbot/`
-
-### 4. Review the snippet
-Open `snippet.js` and verify:
-- `CHATBOT_URL` placeholder is visible (client must update this)
-- `PRIMARY_COLOR` matches the brand
-- `BOT_NAME` is correct
-
-### 5. Package summary
-Report the final delivery package contents:
-```
-clients/<client_name>/
-├── sources.txt          ← original URLs
-├── scraped_data.json    ← raw scraped data
-├── system_prompt.txt    ← generated prompt
-├── chatbot/             ← full chatbot application
-│   ├── index.html
-│   ├── style.css
-│   ├── chatbot.js
-│   └── config.json      ← contains system prompt + brand config
-├── snippet.js           ← embed snippet for client's website
-├── DELIVERY.md          ← setup instructions for client
-└── qa_results.md        ← QA report (optional to share)
+https://web-production-42cf20.up.railway.app/clients/<client_key>/chatbot/
 ```
 
-### 6. Deliver
-Items to send to the client:
-1. The `chatbot/` folder — host on their server
-2. The `snippet.js` file — paste before `</body>` on their site
-3. The `DELIVERY.md` instructions
-
-**Remind me to:**
-- Update `CHATBOT_URL` in `snippet.js` after hosting
-- Set up the server-side API proxy before going live
-- Test in a real browser after deployment
-
-## Expected Output
-- `clients/<client_name>/snippet.js` — final deliverable
-- `clients/<client_name>/DELIVERY.md` — setup instructions
-
-## Important Notes
-- The API key is NEVER in the snippet or client-side code.
-- The chatbot will not work without a server-side proxy.
-- The `chatbot/` folder must be accessible via HTTPS for production use.
-
-## Pipeline Complete ✓
+Pour l'intégrer sur le site du client, donne-lui cette ligne :
+```html
+<script src="https://web-production-42cf20.up.railway.app/static/widget.js"
+        data-client="<client_key>"></script>
 ```
-scrape_sources → generate_prompt → build_chatbot → [manual review] → qa_chatbot → deliver_chatbot
+(disponible aussi via le bouton **⟨/⟩ Intégrer** dans la liste clients)
+
+## Tiers
+
+| Tier | Ce que le client a |
+|------|-------------------|
+| 1    | Chatbot uniquement |
+| 2    | + Dashboard conversations + capture leads |
+| 3    | + Emails automatiques (relance) |
+
+Upgrade/downgrade depuis `/admin/clients` — instantané, aucun redéploiement.
+
+## Créer un accès dashboard (Tier 2+)
+
+Dans `/admin/clients` → bouton **+ Accès dashboard** → email + mot de passe.
+Le client se connecte sur `/dashboard/login`.
+
+---
+
+## Pipeline
+
 ```
+Admin UI → Analyser sources → Sauvegarder config → Chatbot live
+```
+
+Aucun git push nécessaire. La config est stockée en base et servie dynamiquement.
