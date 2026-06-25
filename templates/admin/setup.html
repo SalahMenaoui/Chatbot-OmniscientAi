@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Setup — Admin Omniscient AI</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#0f172a;color:#e2e8f0;min-height:100vh;padding:40px 24px}
+  .header{max-width:600px;margin:0 auto 28px;display:flex;justify-content:space-between;align-items:center}
+  .header h1{font-size:18px;font-weight:800;color:#f1f5f9}
+  .nav{display:flex;gap:16px;align-items:center}
+  .nav a{font-size:13px;color:#64748b;text-decoration:none}
+  .nav a:hover{color:#94a3b8}
+  .section{max-width:600px;margin:0 auto 24px;background:#1e293b;border-radius:16px;border:1px solid #334155;padding:24px}
+  .section h2{font-size:14px;font-weight:700;color:#f1f5f9;margin-bottom:4px}
+  .section p{font-size:13px;color:#64748b;margin-bottom:18px}
+  .alert{padding:10px 14px;border-radius:8px;font-size:13px;font-weight:500;margin-bottom:16px}
+  .alert-ok{background:#14532d;color:#86efac}
+  .alert-err{background:#7f1d1d;color:#fca5a5}
+  label{display:block;font-size:12px;font-weight:600;color:#94a3b8;margin-bottom:5px}
+  select,input[type=text],input[type=email],input[type=password]{
+    width:100%;padding:9px 12px;border-radius:8px;border:1px solid #334155;
+    background:#0f172a;color:#e2e8f0;font-size:13px;outline:none;
+    transition:border-color .15s;margin-bottom:12px}
+  select:focus,input:focus{border-color:#6366f1}
+  .btn{width:100%;padding:10px;border-radius:8px;border:none;cursor:pointer;
+       font-size:14px;font-weight:700;font-family:inherit;transition:background .15s}
+  .btn-primary{background:#6366f1;color:#fff}
+  .btn-primary:hover{background:#4f46e5}
+  .btn-outline{background:#334155;color:#cbd5e1}
+  .btn-outline:hover{background:#475569}
+  .divider{border:none;border-top:1px solid #334155;margin:16px 0}
+  .user-list{list-style:none;display:flex;flex-direction:column;gap:8px}
+  .user-item{display:flex;justify-content:space-between;align-items:center;
+             background:#0f172a;border-radius:8px;padding:10px 14px}
+  .user-email{font-size:13px;color:#e2e8f0}
+  .user-client{font-size:11px;color:#64748b;margin-top:2px}
+  .empty{font-size:13px;color:#475569;font-style:italic}
+</style>
+</head>
+<body>
+<div class="header">
+  <h1>Setup</h1>
+  <div class="nav">
+    <a href="/admin/clients">← Clients</a>
+    <a href="/admin/logout">Déconnexion</a>
+  </div>
+</div>
+
+<!-- Step 1: Init DB -->
+<div class="section">
+  <h2>1 — Initialiser les clients</h2>
+  <p>Insère les 6 clients dans la base de données (sans écraser ceux qui existent déjà).</p>
+
+  {% if seeded %}
+  <div class="alert alert-ok">✓ Clients initialisés avec succès.</div>
+  {% endif %}
+
+  <form method="post" action="/admin/setup/seed">
+    <button type="submit" class="btn btn-primary">Initialiser les clients →</button>
+  </form>
+</div>
+
+<!-- Step 2: Create dashboard user -->
+<div class="section">
+  <h2>2 — Créer un accès dashboard</h2>
+  <p>Associe un email + mot de passe à un client pour qu'il puisse se connecter à son dashboard.</p>
+
+  {% if created %}
+  <div class="alert alert-ok">✓ Accès créé avec succès.</div>
+  {% elif error %}
+  <div class="alert alert-err">✗ {{ error }}</div>
+  {% endif %}
+
+  {% if clients %}
+  <form method="post" action="/admin/setup/user">
+    <label>Client</label>
+    <select name="client_key">
+      {% for c in clients %}
+      <option value="{{ c.client_key }}">{{ c.name }}</option>
+      {% endfor %}
+    </select>
+
+    <label>Email</label>
+    <input type="email" name="email" placeholder="client@email.com" required>
+
+    <label>Mot de passe</label>
+    <input type="password" name="password" placeholder="••••••••" required>
+
+    <button type="submit" class="btn btn-primary">Créer l'accès →</button>
+  </form>
+  {% else %}
+  <p class="empty">Aucun client en DB — commencer par l'étape 1.</p>
+  {% endif %}
+
+  {% if dashboard_users %}
+  <hr class="divider">
+  <label style="margin-bottom:10px">Accès existants</label>
+  <ul class="user-list">
+    {% for u in dashboard_users %}
+    <li class="user-item">
+      <div>
+        <div class="user-email">{{ u.email }}</div>
+        <div class="user-client">{{ u.client_name }}</div>
+      </div>
+    </li>
+    {% endfor %}
+  </ul>
+  {% endif %}
+</div>
+
+</body>
+</html>

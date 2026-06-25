@@ -219,6 +219,36 @@ def get_email_logs(client_id: int):
         return [dict(r) for r in rows]
 
 
+KNOWN_CLIENTS = [
+    ("amenagement_paysager_rav",     "Aménagement Paysager AV"),
+    ("aqua_services",                "Aqua Services"),
+    ("onyx_peinture",                "Onyx Peinture"),
+    ("paysagement_cozzy",            "Paysagement Cozzy"),
+    ("plombier_expert_terrebonne",   "Plombier Expert Terrebonne"),
+    ("vetlife",                      "Vetlife"),
+]
+
+
+def seed_known_clients():
+    with get_conn() as conn:
+        for key, name in KNOWN_CLIENTS:
+            conn.execute(
+                "INSERT OR IGNORE INTO clients (client_key, name) VALUES (?, ?)",
+                (key, name),
+            )
+
+
+def get_dashboard_users():
+    with get_conn() as conn:
+        rows = conn.execute(
+            """SELECT du.email, c.client_key, c.name AS client_name
+               FROM dashboard_users du
+               JOIN clients c ON c.id = du.client_id
+               ORDER BY c.name"""
+        ).fetchall()
+        return [dict(r) for r in rows]
+
+
 def get_all_clients():
     with get_conn() as conn:
         rows = conn.execute("SELECT * FROM clients ORDER BY name").fetchall()
