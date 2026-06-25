@@ -192,38 +192,62 @@ def scrape_googlemaps(url: str) -> dict:
 # ── Logo download ──────────────────────────────────────────────────────────────
 
 def download_logo(website_url: str, instagram_data: dict) -> str | None:
-    """Download best logo, return base64 PNG string or None."""
+    """Download best logo, auto-crop with process_logo, return base64 PNG or None."""
     import urllib.request
+    import importlib.util
+    import tempfile
+    import os
+    from pathlib import Path
 
     def fetch(url):
         req = urllib.request.Request(url, headers=HEADERS)
         with urllib.request.urlopen(req, timeout=10) as r:
             return r.read()
 
-    def to_b64(data: bytes) -> str | None:
+    def process_and_b64(data: bytes) -> str | None:
         try:
             from PIL import Image
-            img = Image.open(BytesIO(data))
+
+            tmp_in  = tempfile.NamedTemporaryFile(suffix=".png", delete=False)
+            tmp_in.write(data)
+            tmp_in.close()
+            tmp_out = tmp_in.name.replace(".png", "_cropped.png")
+
+            try:
+                tools_dir = Path(__file__).parent.parent / "tools"
+                spec = importlib.util.spec_from_file_location(
+                    "process_logo", tools_dir / "process_logo.py"
+                )
+                mod = importlib.util.module_from_spec(spec)
+                spec.loader.exec_module(mod)
+                mod.process_logo(tmp_in.name, tmp_out, padding=8)
+                with open(tmp_out, "rb") as f:
+                    processed = f.read()
+            except Exception:
+                processed = data
+            finally:
+                for p in [tmp_in.name, tmp_out]:
+                    try: os.unlink(p)
+                    except: pass
+
+            img = Image.open(BytesIO(processed)).convert("RGBA")
             img.thumbnail((128, 128), Image.LANCZOS)
-            if img.mode in ("RGBA", "LA"):
-                bg = Image.new("RGBA", img.size, (255,255,255,255))
-                bg.paste(img, mask=img.split()[-1])
-                img = bg.convert("RGB")
-            elif img.mode != "RGB":
-                img = img.convert("RGB")
+            bg = Image.new("RGBA", img.size, (255, 255, 255, 255))
+            bg.paste(img, mask=img.split()[3])
+
             buf = BytesIO()
-            img.save(buf, "PNG")
+            bg.convert("RGB").save(buf, "PNG")
             return base64.b64encode(buf.getvalue()).decode()
         except Exception:
             return None
 
     candidates = []
 
-    # Instagram profile pic (best quality for avatar)
+    # Instagram profile pic — always square, ideal avatar
     if instagram_data and not instagram_data.get("error") and instagram_data.get("profile_pic_url"):
         candidates.append(instagram_data["profile_pic_url"])
 
-    # Website: apple-touch-icon, og:image, favicon
+    # Website: apple-touch-icon first (real logo), then favicon, og:image last (often a banner)
     if website_url:
         try:
             from urllib.parse import urlparse
@@ -239,19 +263,25 @@ def download_logo(website_url: str, instagram_data: dict) -> str | None:
                 if not href.startswith("http"): href = base + "/" + href.lstrip("/")
                 candidates.append(href)
 
-            m = re.search(r'<meta[^>]+property=["\']og:image["\'][^>]+content=["\']([^"\']+)["\']', html)
-            if m: candidates.append(m.group(1))
+            candidates += [f"{base}/apple-touch-icon.png", f"{base}/apple-touch-icon-precomposed.png"]
 
-            for fav in [f"{base}/apple-touch-icon.png", f"{base}/favicon.ico", f"{base}/favicon.png"]:
-                candidates.append(fav)
+            for m2 in re.finditer(
+                r'<link[^>]+rel=["\']([^"\']*icon[^"\']*)["\'][^>]+href=["\']([^"\']+)["\']',
+                html, re.I
+            ):
+                href = m2.group(2)
+                if not href.startswith("http"): href = base + "/" + href.lstrip("/")
+                candidates.append(href)
+
+            candidates += [f"{base}/favicon.ico", f"{base}/favicon.png"]
         except Exception:
             pass
 
     for url in candidates:
         try:
             data = fetch(url)
-            if len(data) < 200: continue
-            b64 = to_b64(data)
+            if len(data) < 100: continue
+            b64 = process_and_b64(data)
             if b64: return b64
         except Exception:
             continue
