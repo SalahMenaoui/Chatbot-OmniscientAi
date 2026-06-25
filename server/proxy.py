@@ -116,6 +116,12 @@ async def health():
     return {"status": "ok"}
 
 
+@app.get("/debug/clients")
+async def debug_clients():
+    from server import models
+    return {"clients": models.get_all_clients()}
+
+
 @app.get("/debug/env")
 async def debug_env():
     import sys, os
