@@ -165,4 +165,4 @@ async def debug_env():
 
 clients_dir = os.path.join(os.path.dirname(__file__), "..", "clients")
 if os.path.isdir(clients_dir):
-    app.mount("/clients", StaticFiles(directory=clients_dir), name="clients")
+    app.mount("/clients", StaticFiles(directory=clients_dir, html=True), name="clients")
